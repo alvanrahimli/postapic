@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>All of your posts</title>
+    <link rel="stylesheet" href="/static/simple.min.css">
+    <link rel="stylesheet" href="/static/style.css">
+    <link rel="icon" type="image/x-icon" href="/static/favicon.ico">
+</head>
+<body>
+    <header>
+        <h1>Post a pic!</h1>
+        <p>Here you are, all the pics</p>
+        <nav>
+            <a href="/">Browse pics</a>
+            <a href="/postapic">Post a pic!</a>
+        </nav>
+    </header>
+
+    <main>
+        <ul id="postfeed">
+            {{range .Posts}}
+                <li id="post-{{.PostId}}">
+                    <h4>{{.Title}}</h4> 
+                    <i>(by <strong>{{.AuthorName}}</strong> at {{.ReadableTime .Timestamp}})</i>
+                    <img src="{{.ImageUrl}}" alt="Post by {{.AuthorName}}" loading="lazy">
+                </li>
+            {{end}}
+        </ul>
+    </main>
+</body>
+</html>

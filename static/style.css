@@ -1,0 +1,27 @@
+img, video {
+    min-width: 100%;
+}
+
+#postfeed {
+    padding-inline-start: 0;
+    margin-top: 0;
+}
+
+#postfeed > li {
+    list-style: outside none none;
+}
+
+#postfeed > li:not(:first-of-type) {
+    margin-top: 18px;
+}
+
+#postfeed i {
+    font-size: .8em;
+    display: inline;
+    white-space: nowrap;
+}
+
+#postfeed h4 {
+    margin-bottom: 0;
+    display: inline;
+}
