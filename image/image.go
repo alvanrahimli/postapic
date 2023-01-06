@@ -43,7 +43,11 @@ func (m Manager) process(r io.Reader) ([]byte, error) {
 		return nil, fmt.Errorf("failed to read: %w", err)
 	}
 
-	img := bimg.NewImage(buf)
+	img, err := loadImage(buf)
+	if err != nil {
+		return nil, fmt.Errorf("failed to autorotate the image: %w", err)
+	}
+
 	opt := bimg.Options{Type: bimg.WEBP}
 
 	// resize if needed
@@ -55,6 +59,16 @@ func (m Manager) process(r io.Reader) ([]byte, error) {
 	}
 
 	return buf, nil
+}
+
+// loadsImage loads image from file and prepares for further processing
+func loadImage(buf []byte) (*bimg.Image, error) {
+	img := bimg.NewImage(buf)
+	buf, err := img.AutoRotate()
+	if err != nil {
+		return nil, fmt.Errorf("failed to autorotate the image: %w", err)
+	}
+	return bimg.NewImage(buf), nil
 }
 
 func (m Manager) optimizeSize(img *bimg.Image, opt *bimg.Options) error {
