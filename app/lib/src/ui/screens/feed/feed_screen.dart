@@ -1,7 +1,9 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
+import 'package:postapic/src/config.dart';
 import 'package:postapic/src/data/blocs.dart';
 import 'package:postapic/src/ui/widgets/generic_error_view.dart';
 import 'package:postapic/src/ui/widgets/lazy_loader.dart';
@@ -104,32 +106,46 @@ class FeedTile extends StatelessWidget {
     final theme = Theme.of(context);
 
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: const EdgeInsets.fromLTRB(15, 10, 15, 10),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+          child: Text(post.title, style: theme.textTheme.bodyLarge),
+        ),
+        Image(
+          image: CachedNetworkImageProvider(fullImageUrl(post.imageUrl)),
+          errorBuilder: (context, error, stackTrace) {
+            return GenericErrorView(
+              message: 'Failed to load the image',
+              error: error,
+              stackTrace: stackTrace,
+            );
+          },
+          loadingBuilder: (context, child, loadingProgress) {
+            return loadingProgress == null
+                ? child
+                : const SizedBox(height: 300);
+          },
+        ),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+          child: Row(
             children: [
-              Text(post.title, style: theme.textTheme.bodyLarge),
-              Row(
-                children: [
-                  Text(
-                    '@${post.author.userName}',
-                    style: theme.textTheme.bodySmall,
-                  ),
-                  const Spacer(),
-                  Text(
-                    prettyDate(post.createdAt),
-                    style: theme.textTheme.bodySmall,
-                  ),
-                ],
+              Expanded(
+                child: Text(
+                  '@${post.author.userName}',
+                  style: theme.textTheme.bodySmall,
+                ),
+              ),
+              Text(
+                prettyDate(post.createdAt),
+                style: theme.textTheme.bodySmall,
               ),
             ],
           ),
         ),
-        Image(
-          image: NetworkImage(post.imageUrl),
-        ),
+        const Divider(height: 1, thickness: 1),
+        const SizedBox(height: 15),
       ],
     );
   }
@@ -137,4 +153,12 @@ class FeedTile extends StatelessWidget {
 
 String prettyDate(DateTime value) {
   return timeago.format(value, locale: 'en');
+}
+
+String fullImageUrl(String imageUrl) {
+  if (imageUrl.startsWith('https://') || imageUrl.startsWith('http://')) {
+    return imageUrl;
+  }
+
+  return Uri.parse(apiBaseUrl).resolve(imageUrl).toString();
 }
