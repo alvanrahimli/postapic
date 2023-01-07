@@ -33,7 +33,7 @@ class GenericErrorView extends StatelessWidget {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Details'),
-        content: Column(
+        content: ListView(
           children: [
             Text(error?.toString() ?? ''),
             if (stackTrace != null) ...[
