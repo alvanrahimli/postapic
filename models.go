@@ -74,16 +74,19 @@ func createPost(req PostCreateDto) error {
 	return nil
 }
 
-func getAllPosts() ([]PostDto, error) {
+func getAllPosts(offset, limit int) ([]PostDto, error) {
 	db := getDb()
 
 	rows, err := db.Query(`
-SELECT post_id, title, image_key, timestamp, user_name 
+SELECT post_id, title, image_key, timestamp, author_id, user_name 
 FROM posts LEFT JOIN users u on u.user_id = posts.author_id
-ORDER BY post_id DESC;`)
+ORDER BY post_id DESC
+OFFSET $0 LIMIT $1;`, offset, limit)
 	if rows.Err() != nil {
 		return nil, rows.Err()
 	}
+
+	defer rows.Close()
 
 	var posts []PostDto
 	for rows.Next() {
@@ -91,7 +94,7 @@ ORDER BY post_id DESC;`)
 		var timeStr string
 		var imageKey string
 
-		err = rows.Scan(&post.PostId, &post.Title, &imageKey, &timeStr, &post.AuthorName)
+		err = rows.Scan(&post.PostId, &post.Title, &imageKey, &timeStr, &post.Author.UserId, &post.Author.UserName)
 		if err != nil {
 			return nil, err
 		}

@@ -11,16 +11,16 @@ type SubmitPageData struct {
 }
 
 type UserDto struct {
-	UserId   int
-	UserName string
+	UserId   int    `json:"id"`
+	UserName string `json:"userName"`
 }
 
 type PostDto struct {
-	PostId     int
-	Title      string
-	ImageUrl   string
-	Timestamp  time.Time
-	AuthorName string
+	PostId    int       `json:"id"`
+	Title     string    `json:"title"`
+	ImageUrl  string    `json:"imageUrl"`
+	Timestamp time.Time `json:"createdAt"`
+	Author    UserDto   `json:"author"`
 }
 
 type PostCreateDto struct {
