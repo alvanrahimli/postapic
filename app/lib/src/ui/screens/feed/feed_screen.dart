@@ -66,7 +66,7 @@ class FeedList extends StatelessWidget {
       addSemanticIndexes: true,
     );
 
-    const staticPadding = const EdgeInsets.only(bottom: 20);
+    const staticPadding = EdgeInsets.only(bottom: 20);
 
     return LazyLoader(
       onEndOfPage: postsCubit.loadMore,
