@@ -81,7 +81,7 @@ func getAllPosts(offset, limit int) ([]PostDto, error) {
 SELECT post_id, title, image_key, timestamp, author_id, user_name 
 FROM posts LEFT JOIN users u on u.user_id = posts.author_id
 ORDER BY post_id DESC
-OFFSET $0 LIMIT $1;`, offset, limit)
+LIMIT ? OFFSET ?;`, limit, offset)
 	if rows.Err() != nil {
 		return nil, rows.Err()
 	}
