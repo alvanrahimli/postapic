@@ -3,6 +3,7 @@ package main
 import (
 	"database/sql"
 	"errors"
+	"github.com/alvanrahimli/postapic/timeago"
 	"log"
 	"net/url"
 	"time"
@@ -119,5 +120,7 @@ LIMIT ? OFFSET ?;`, limit, offset)
 }
 
 func (p PostDto) ReadableTime(timestamp time.Time) string {
-	return timestamp.Local().Format("02 Jan 06 15:04")
+	return timeago.English.FormatRelativeDuration(time.Now().Local().Sub(timestamp.Local()))
+	//return timestamp.Local().Format("02 Jan 06 15:04")
+
 }

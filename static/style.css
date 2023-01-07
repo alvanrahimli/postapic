@@ -1,3 +1,7 @@
+body {
+    grid-template-columns: 1fr min(45rem,100%) 1fr;
+}
+
 img, video {
     min-width: 100%;
 }
@@ -11,19 +15,20 @@ img, video {
     list-style: outside none none;
 }
 
+#postfeed img {
+    border-radius: 0;
+}
+
+#postfeed > li :not(img, div) {
+    margin: 0 .3em 0 .3em;
+}
+
 #postfeed > li:not(:first-of-type) {
     margin-top: 18px;
 }
 
-#postfeed i {
-    font-size: .8em;
-    display: inline;
-    white-space: nowrap;
-}
-
-#postfeed h4 {
+#postfeed h5 {
     margin-bottom: 0;
-    display: inline;
 }
 
 nav a.current {
@@ -35,4 +40,21 @@ img[lazy-src] {
     background-color: rgba(0, 0, 0, 0.2);
     width: 100%;
     aspect-ratio: 16/9;
+}
+
+.image-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    margin-top: -.4em;
+    padding: .3em 0 .3em 0;
+
+    font-size: .7em;
+    border-bottom: 1px solid #636363;
+    color: #b0b0b0;
+}
+
+.image-footer > p {
+    margin: .4em 0 .4em 0;
 }
