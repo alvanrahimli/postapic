@@ -73,7 +73,7 @@ func handlePostAPic(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		imageKey, err := imgMgr.Upload(picture)
+		imageCtx, err := imgMgr.Upload(picture)
 		if err != nil {
 			log.Println("error creating file", err.Error())
 			http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -83,7 +83,9 @@ func handlePostAPic(w http.ResponseWriter, r *http.Request) {
 		err = createPost(PostCreateDto{
 			Title:    title,
 			UserId:   userId,
-			ImageKey: imageKey,
+			ImageKey: imageCtx.Key,
+			Width:    imageCtx.Width,
+			Height:   imageCtx.Height,
 		})
 		if err != nil {
 			log.Printf("could not insert post. err: %s\n", err.Error())

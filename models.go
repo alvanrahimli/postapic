@@ -65,8 +65,8 @@ func getAllUsers() ([]UserDto, error) {
 func createPost(req PostCreateDto) error {
 	db := getDb()
 
-	_, err := db.Exec("INSERT INTO posts (title, image_key, timestamp, author_id) VALUES (?, ?, ?, ?);",
-		req.Title, req.ImageKey, time.Now().Format(time.RFC3339), req.UserId)
+	_, err := db.Exec(`INSERT INTO posts (title, image_key, image_width, image_height, timestamp, author_id) VALUES (?, ?, ?, ?, ?, ?);`,
+		req.Title, req.ImageKey, req.Width, req.Height, time.Now().Format(time.RFC3339), req.UserId)
 	if err != nil {
 		return err
 	}
@@ -78,7 +78,7 @@ func getAllPosts(offset, limit int) ([]PostDto, error) {
 	db := getDb()
 
 	rows, err := db.Query(`
-SELECT post_id, title, image_key, timestamp, author_id, user_name 
+SELECT post_id, title, image_key, image_width, image_height, timestamp, author_id, user_name 
 FROM posts LEFT JOIN users u on u.user_id = posts.author_id
 ORDER BY post_id DESC
 LIMIT ? OFFSET ?;`, limit, offset)
@@ -94,7 +94,8 @@ LIMIT ? OFFSET ?;`, limit, offset)
 		var timeStr string
 		var imageKey string
 
-		err = rows.Scan(&post.PostId, &post.Title, &imageKey, &timeStr, &post.Author.UserId, &post.Author.UserName)
+		err = rows.Scan(&post.PostId, &post.Title, &imageKey, &post.Image.Width, &post.Image.Height,
+			&timeStr, &post.Author.UserId, &post.Author.UserName)
 		if err != nil {
 			return nil, err
 		}
@@ -109,7 +110,7 @@ LIMIT ? OFFSET ?;`, limit, offset)
 		if err != nil {
 			return nil, err
 		}
-		post.ImageUrl = finalImgUrl
+		post.Image.Url = finalImgUrl
 
 		posts = append(posts, post)
 	}
@@ -118,5 +119,5 @@ LIMIT ? OFFSET ?;`, limit, offset)
 }
 
 func (p PostDto) ReadableTime(timestamp time.Time) string {
-	return timestamp.Format("02 Jan 06 15:04")
+	return timestamp.Local().Format("02 Jan 06 15:04")
 }

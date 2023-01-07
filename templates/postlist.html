@@ -25,7 +25,7 @@
                 <li id="post-{{.PostId}}">
                     <h4>{{.Title}}</h4> 
                     <i>(by <strong>{{.Author.UserName }}</strong> at {{.ReadableTime .Timestamp}})</i>
-                    <img lazy-src="{{.ImageUrl}}" alt="Post by {{.Author.UserName}}" loading="lazy">
+                    <img lazy-src="{{.Image.Url}}" alt="Post by {{.Author.UserName}}" loading="lazy">
                 </li>
             {{end}}
         </ul>

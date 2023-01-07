@@ -20,6 +20,8 @@ CREATE TABLE IF NOT EXISTS posts (
 	title TEXT,
 	timestamp TEXT,
 	image_key TEXT NOT NULL,
+	image_width INTEGER NOT NULL,
+	image_height INTEGER NOT NULL,
 	author_id INTEGER NOT NULL,
 	FOREIGN KEY (author_id)
 		REFERENCES users (user_id)

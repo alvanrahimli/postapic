@@ -16,18 +16,28 @@ type Manager struct {
 	MaxWidth, MaxHeight int
 }
 
-// Upload reads, optimizes and creates a file in a destination directory with a unique name
-func (m Manager) Upload(r io.Reader) (key string, err error) {
-	key = m.newKey()
+type ImageContext struct {
+	Key    string
+	Width  int
+	Height int
+}
 
-	buf, err := m.process(r)
+// Upload reads, optimizes and creates a file in a destination directory with a unique name
+func (m Manager) Upload(r io.Reader) (c *ImageContext, err error) {
+	buf, imgSize, err := m.process(r)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
-	fpath := path.Join(m.Directory, key)
+	c = &ImageContext{
+		Key:    m.newKey(),
+		Width:  imgSize.Width,
+		Height: imgSize.Height,
+	}
+
+	fpath := path.Join(m.Directory, c.Key)
 	if err := os.WriteFile(fpath, buf, 0666); err != nil {
-		return "", fmt.Errorf("failed to write to file '%s': %w", fpath, err)
+		return nil, fmt.Errorf("failed to write to file '%s': %w", fpath, err)
 	}
 
 	return
@@ -37,28 +47,31 @@ func (m Manager) newKey() string {
 	return time.Now().Format("2006-01-02T15-04-05-99") + ".webp"
 }
 
-func (m Manager) process(r io.Reader) ([]byte, error) {
+func (m Manager) process(r io.Reader) ([]byte, *bimg.ImageSize, error) {
 	buf, err := io.ReadAll(r)
 	if err != nil {
-		return nil, fmt.Errorf("failed to read: %w", err)
+		return nil, nil, fmt.Errorf("failed to read: %w", err)
 	}
 
 	img, err := loadImage(buf)
 	if err != nil {
-		return nil, fmt.Errorf("failed to autorotate the image: %w", err)
+		return nil, nil, fmt.Errorf("failed to autorotate the image: %w", err)
 	}
 
 	opt := bimg.Options{Type: bimg.WEBP}
 
 	// resize if needed
-	m.optimizeSize(img, &opt)
+	newSize, err := m.optimizeSize(img, &opt)
+	if err != nil {
+		return nil, nil, err
+	}
 
 	buf, err = img.Process(opt)
 	if err != nil {
-		return nil, fmt.Errorf("failed to process img: %w", err)
+		return nil, nil, fmt.Errorf("failed to process img: %w", err)
 	}
 
-	return buf, nil
+	return buf, newSize, nil
 }
 
 // loadsImage loads image from file and prepares for further processing
@@ -71,15 +84,15 @@ func loadImage(buf []byte) (*bimg.Image, error) {
 	return bimg.NewImage(buf), nil
 }
 
-func (m Manager) optimizeSize(img *bimg.Image, opt *bimg.Options) error {
+func (m Manager) optimizeSize(img *bimg.Image, opt *bimg.Options) (*bimg.ImageSize, error) {
 	size, err := img.Size()
 	if err != nil {
-		return fmt.Errorf("failed to get image size: %w", err)
+		return nil, fmt.Errorf("failed to get image size: %w", err)
 	}
 
 	// in case the image already fits our constraints, do nothing
 	if size.Height < m.MaxHeight && size.Width < m.MaxWidth {
-		return nil
+		return &size, nil
 	}
 
 	var (
@@ -101,7 +114,10 @@ func (m Manager) optimizeSize(img *bimg.Image, opt *bimg.Options) error {
 
 	opt.Width = newWidth
 	opt.Height = newHeight
-	return nil
+	return &bimg.ImageSize{
+		Width:  newWidth,
+		Height: newHeight,
+	}, nil
 }
 
 func min(a, b int) int {

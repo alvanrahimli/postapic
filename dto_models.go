@@ -15,10 +15,16 @@ type UserDto struct {
 	UserName string `json:"userName"`
 }
 
+type ImageDto struct {
+	Url    string `json:"url"`
+	Width  int    `json:"width"`
+	Height int    `json:"height"`
+}
+
 type PostDto struct {
 	PostId    int       `json:"id"`
 	Title     string    `json:"title"`
-	ImageUrl  string    `json:"imageUrl"`
+	Image     ImageDto  `json:"image"`
 	Timestamp time.Time `json:"createdAt"`
 	Author    UserDto   `json:"author"`
 }
@@ -27,6 +33,8 @@ type PostCreateDto struct {
 	Title    string
 	UserId   int
 	ImageKey string
+	Width    int
+	Height   int
 }
 
 type UserPasswordDto struct {
