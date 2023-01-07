@@ -2,8 +2,9 @@ package main
 
 import (
 	"fmt"
-	_ "github.com/mattn/go-sqlite3"
 	"net/http"
+
+	_ "github.com/mattn/go-sqlite3"
 )
 
 func main() {
@@ -19,6 +20,7 @@ func main() {
 
 	http.HandleFunc("/rss", handleRssFeed)
 	http.HandleFunc("/postapic", handlePostAPic)
+	http.HandleFunc("/api/posts", handleGetPostsApi)
 	http.HandleFunc("/", handleGetPosts)
 
 	fmt.Println("Listening at :8080")

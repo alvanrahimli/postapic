@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"encoding/json"
 	"html/template"
 	"log"
 	"net/http"
@@ -101,6 +102,22 @@ func handleGetPosts(w http.ResponseWriter, _ *http.Request) {
 	}
 
 	iHopeSo(tmpl.ExecuteTemplate(w, "postlist.html", PostsPageData{Posts: posts}))
+}
+
+func handleGetPostsApi(w http.ResponseWriter, _ *http.Request) {
+	posts, err := getAllPosts()
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Add("content-type", "application/json; charset=utf-8")
+	w.WriteHeader(http.StatusOK)
+
+	err = json.NewEncoder(w).Encode(posts)
+	if err != nil {
+		log.Printf("failed to encode: %s", err)
+	}
 }
 
 func handleRssFeed(w http.ResponseWriter, _ *http.Request) {

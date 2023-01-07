@@ -16,11 +16,11 @@ type UserDto struct {
 }
 
 type PostDto struct {
-	PostId     int
-	Title      string
-	ImageUrl   string
-	Timestamp  time.Time
-	AuthorName string
+	PostId    int
+	Title     string
+	ImageUrl  string
+	Timestamp time.Time
+	Author    UserDto
 }
 
 type PostCreateDto struct {
