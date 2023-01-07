@@ -6,6 +6,7 @@ import (
 	"html/template"
 	"log"
 	"net/http"
+	"net/url"
 	"strconv"
 	"strings"
 
@@ -95,7 +96,7 @@ func handlePostAPic(w http.ResponseWriter, r *http.Request) {
 }
 
 func handleGetPosts(w http.ResponseWriter, _ *http.Request) {
-	posts, err := getAllPosts()
+	posts, err := getAllPosts(0, 1000)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -104,8 +105,27 @@ func handleGetPosts(w http.ResponseWriter, _ *http.Request) {
 	iHopeSo(tmpl.ExecuteTemplate(w, "postlist.html", PostsPageData{Posts: posts}))
 }
 
-func handleGetPostsApi(w http.ResponseWriter, _ *http.Request) {
-	posts, err := getAllPosts()
+func getIntParam(v url.Values, key string) (value int, ok bool) {
+	s := v.Get(key)
+	if v, err := strconv.Atoi(s); err == nil {
+		return v, true
+	} else {
+		return 0, false
+	}
+}
+
+func handleGetPostsApi(w http.ResponseWriter, r *http.Request) {
+	query := r.URL.Query()
+	offset, hasOffset := getIntParam(query, "offset")
+	if !hasOffset {
+		offset = 0
+	}
+	limit, hasLimit := getIntParam(query, "limit")
+	if !hasLimit {
+		limit = 10
+	}
+
+	posts, err := getAllPosts(offset, limit)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -121,7 +141,7 @@ func handleGetPostsApi(w http.ResponseWriter, _ *http.Request) {
 }
 
 func handleRssFeed(w http.ResponseWriter, _ *http.Request) {
-	posts, err := getAllPosts()
+	posts, err := getAllPosts(0, 1000)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
