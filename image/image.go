@@ -3,6 +3,7 @@ package image
 import (
 	"fmt"
 	"io"
+	"log"
 	"os"
 	"path"
 	"time"
@@ -20,6 +21,21 @@ type ImageContext struct {
 	Key    string
 	Width  int
 	Height int
+}
+
+func GetSize(imgPath string) bimg.ImageSize {
+	imgBytes, err := bimg.Read(imgPath)
+	if err != nil {
+		log.Fatalln(err.Error())
+	}
+
+	img := bimg.NewImage(imgBytes)
+	size, err := img.Size()
+	if err != nil {
+		log.Fatalln(err.Error())
+	}
+
+	return size
 }
 
 // Upload reads, optimizes and creates a file in a destination directory with a unique name

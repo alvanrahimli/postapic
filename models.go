@@ -88,7 +88,7 @@ LIMIT ? OFFSET ?;`, limit, offset)
 
 	defer rows.Close()
 
-	var posts []PostDto
+	var posts = make([]PostDto, 0)
 	for rows.Next() {
 		var post PostDto
 		var timeStr string
