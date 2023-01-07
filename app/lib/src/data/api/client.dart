@@ -14,7 +14,8 @@ class MockApiClient implements ApiClient {
       (index) => Post(
         offset + index,
         'Post $index',
-        'https://wc.rahim.li/images/2023-01-06T21-24-21-99.webp',
+        const ImageRef(
+            'https://wc.rahim.li/images/2023-01-06T21-24-21-99.webp', 0, 0),
         DateTime.now(),
         const User(1, 'themisir'),
       ),

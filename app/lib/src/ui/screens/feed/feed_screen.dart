@@ -112,21 +112,7 @@ class FeedTile extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
           child: Text(post.title, style: theme.textTheme.bodyLarge),
         ),
-        Image(
-          image: CachedNetworkImageProvider(fullImageUrl(post.imageUrl)),
-          errorBuilder: (context, error, stackTrace) {
-            return GenericErrorView(
-              message: 'Failed to load the image',
-              error: error,
-              stackTrace: stackTrace,
-            );
-          },
-          loadingBuilder: (context, child, loadingProgress) {
-            return loadingProgress == null
-                ? child
-                : const SizedBox(height: 300);
-          },
-        ),
+        FeedImage(image: post.image),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
           child: Row(
@@ -151,14 +137,46 @@ class FeedTile extends StatelessWidget {
   }
 }
 
-String prettyDate(DateTime value) {
-  return timeago.format(value, locale: 'en');
-}
+class FeedImage extends StatelessWidget {
+  final ImageRef image;
+  final String _imageUrl;
 
-String fullImageUrl(String imageUrl) {
-  if (imageUrl.startsWith('https://') || imageUrl.startsWith('http://')) {
-    return imageUrl;
+  FeedImage({super.key, required this.image})
+      : _imageUrl = _toFullUrl(image.url);
+
+  static String _toFullUrl(String imageUrl) {
+    return (imageUrl.startsWith('https://') || imageUrl.startsWith('http://'))
+        ? imageUrl
+        : Uri.parse(apiBaseUrl).resolve(imageUrl).toString();
   }
 
-  return Uri.parse(apiBaseUrl).resolve(imageUrl).toString();
+  @override
+  Widget build(BuildContext context) {
+    Widget child = Image(
+      image: CachedNetworkImageProvider(_imageUrl),
+      errorBuilder: (context, error, stackTrace) {
+        return GenericErrorView(
+          message: 'Failed to load the image',
+          error: error,
+          stackTrace: stackTrace,
+        );
+      },
+      loadingBuilder: (context, child, loadingProgress) {
+        return loadingProgress == null ? child : const SizedBox(height: 300);
+      },
+    );
+
+    if (image.width > 0 && image.height > 0) {
+      return AspectRatio(
+        aspectRatio: image.width / image.height,
+        child: child,
+      );
+    }
+
+    return child;
+  }
+}
+
+String prettyDate(DateTime value) {
+  return timeago.format(value, locale: 'en');
 }
