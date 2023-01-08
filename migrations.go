@@ -29,6 +29,15 @@ CREATE TABLE IF NOT EXISTS posts (
 	insertUser = `
 INSERT OR IGNORE INTO users (user_id, user_name, password)
 VALUES (?, ?, ?);`
+	createTokens = `
+CREATE TABLE IF NOT EXISTS tokens (
+    token_id INTEGER PRIMARY KEY,
+    token TEXT NOT NULL,
+    expiration TEXT NOT NULL,
+    user_id INTEGER NOT NULL,
+    FOREIGN KEY (user_id)
+		REFERENCES users (user_id)
+);`
 )
 
 var dbInternal *sql.DB
@@ -63,6 +72,15 @@ func migrate() error {
 		return err
 	}
 	_, err = postStmt.Exec()
+	if err != nil {
+		return err
+	}
+
+	tokenStmt, err := db.Prepare(createTokens)
+	if err != nil {
+		return err
+	}
+	_, err = tokenStmt.Exec()
 	if err != nil {
 		return err
 	}

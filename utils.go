@@ -3,7 +3,9 @@ package main
 import (
 	"errors"
 	"log"
+	"math/rand"
 	"os"
+	"time"
 )
 
 func MakeOrIgnoreDir(dir string) error {
@@ -16,6 +18,19 @@ func MakeOrIgnoreDir(dir string) error {
 	}
 
 	return err
+}
+
+var letters = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
+
+func RandSeq(n int) string {
+	// TODO: Use crypto/rand for more secure codes
+	rand.Seed(time.Now().UnixNano())
+	b := make([]rune, n)
+	for i := range b {
+		b[i] = letters[rand.Intn(len(letters))]
+	}
+
+	return string(b)
 }
 
 func must(err error) {

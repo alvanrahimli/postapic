@@ -42,7 +42,8 @@ type PostCreateDto struct {
 	Height   int
 }
 
-type UserPasswordDto struct {
+type CheckPasswordDto struct {
 	UserId   int
+	Username string
 	Password string
 }

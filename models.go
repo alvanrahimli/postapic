@@ -15,18 +15,31 @@ type User struct {
 	Password string `json:"password"`
 }
 
-func checkUserPassword(req UserPasswordDto) (bool, int, error) {
+type Token struct {
+	TokenId    int64     `json:"-"`
+	Token      string    `json:"token"`
+	Expiration time.Time `json:"expiration"`
+	UserId     int       `json:"user_id"`
+}
+
+func tryFindUser(req CheckPasswordDto) (succeeded bool, userId int, err error) {
 	db := getDb()
 
-	row := db.QueryRow("SELECT user_id FROM users WHERE user_id = ? AND password = ?", req.UserId, req.Password)
-	err := row.Err()
+	var row *sql.Row
+
+	if req.Username != "" {
+		row = db.QueryRow("SELECT user_id FROM users WHERE user_name = ? AND password = ?", req.Username, req.Password)
+	} else {
+		row = db.QueryRow("SELECT user_id FROM users WHERE user_id = ? AND password = ?", req.UserId, req.Password)
+	}
+
+	err = row.Err()
 	if errors.Is(err, sql.ErrNoRows) {
 		return false, -1, nil
 	} else if err != nil {
 		return false, -1, err
 	}
 
-	var userId int
 	err = row.Scan(&userId)
 	if err != nil {
 		return false, -1, err
@@ -121,6 +134,67 @@ LIMIT ? OFFSET ?;`, limit, offset)
 
 func (p PostDto) ReadableTime(timestamp time.Time) string {
 	return timeago.English.FormatRelativeDuration(time.Now().Local().Sub(timestamp.Local()))
-	//return timestamp.Local().Format("02 Jan 06 15:04")
+}
 
+func createToken(userId int) (*Token, error) {
+	token := &Token{
+		Token:      RandSeq(64),
+		Expiration: time.Now().Add(time.Hour * 24 * 365).UTC(),
+		UserId:     userId,
+	}
+
+	db := getDb()
+
+	query, err := db.Prepare("INSERT INTO tokens (token, expiration, user_id) VALUES (?, ?, ?)")
+	if err != nil {
+		return nil, err
+	}
+
+	result, err := query.Exec(token.Token, token.Expiration.Format(time.RFC3339), userId)
+	if err != nil {
+		return nil, err
+	}
+
+	id, err := result.LastInsertId()
+	if err != nil {
+		return nil, err
+	}
+
+	token.TokenId = id
+	return token, nil
+}
+
+func getAndValidateToken(token string) (*Token, error) {
+	db := getDb()
+
+	stmt, err := db.Prepare("SELECT token_id, token, expiration, user_id FROM tokens WHERE token = ?")
+	if err != nil {
+		return nil, err
+	}
+
+	row := stmt.QueryRow(token)
+	if err := row.Err(); errors.Is(err, sql.ErrNoRows) {
+		return nil, errors.New("could not find token")
+	} else if err != nil {
+		return nil, err
+	}
+
+	var t Token
+	var exp string
+	err = row.Scan(&t.TokenId, &t.Token, &exp, &t.UserId)
+	if err != nil {
+		return nil, err
+	}
+
+	expTime, err := time.Parse(time.RFC3339, exp)
+	if err != nil {
+		return nil, err
+	}
+
+	if expTime.Before(time.Now().UTC()) {
+		return nil, errors.New("token has expired")
+	}
+
+	t.Expiration = expTime
+	return &t, nil
 }

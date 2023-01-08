@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"html/template"
 	"log"
 	"net/http"
@@ -23,7 +24,7 @@ var imgMgr = image.Manager{
 const MaxUploadBufferSize = 1 << 20 // 1 MiB
 const MaxFileSize = 20 << 20        // 20 MiB
 
-func handlePostAPic(w http.ResponseWriter, r *http.Request) {
+func handlePostapic(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case "GET":
 		var users []UserDto
@@ -61,13 +62,13 @@ func handlePostAPic(w http.ResponseWriter, r *http.Request) {
 			handleError(w, "Invalid user id", http.StatusBadRequest)
 			return
 		}
-		userPwdDto := UserPasswordDto{
+		userPwdDto := CheckPasswordDto{
 			UserId:   userId,
 			Password: r.FormValue("password"),
 		}
 		title := strings.TrimSpace(r.FormValue("title"))
 
-		userExists, userId, err := checkUserPassword(userPwdDto)
+		userExists, userId, err := tryFindUser(userPwdDto)
 		if !userExists {
 			handleError(w, "User does not exist", http.StatusNotFound)
 			return
@@ -97,6 +98,70 @@ func handlePostAPic(w http.ResponseWriter, r *http.Request) {
 		}
 
 		http.Redirect(w, r, "/", http.StatusFound)
+	}
+}
+
+func handleApiPostapic(w http.ResponseWriter, r *http.Request) {
+	if r.Method != "POST" {
+		http.Error(w, fmt.Sprintf("Method %s is not allowed", r.Method), http.StatusMethodNotAllowed)
+		return
+	}
+
+	headerParts := strings.Split(r.Header.Get("Authorization"), " ")
+	if len(headerParts) != 2 {
+		http.Error(w, "Invalid authorization header", http.StatusUnauthorized)
+		return
+	}
+	if headerParts[0] != "Bearer" {
+		http.Error(w, "Bearer token required", http.StatusUnauthorized)
+		return
+	}
+	token := headerParts[1]
+
+	title := r.FormValue("title")
+	if title == "" {
+		http.Error(w, "title is required", http.StatusBadRequest)
+		return
+	}
+
+	t, err := getAndValidateToken(token)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusUnauthorized)
+		return
+	}
+
+	r.ParseMultipartForm(MaxUploadBufferSize)
+	picture, pictureHeader, err := r.FormFile("picture")
+	if err != nil {
+		log.Printf("Could not get form file. err: %s\n", err.Error())
+		handleError(w, "Could not get form file", http.StatusBadRequest)
+		return
+	}
+	if pictureHeader.Size > MaxFileSize {
+		log.Printf("Max file upload size exceeded (size: %v)\n", pictureHeader.Size)
+		handleError(w, "Max file upload size exceeded", http.StatusRequestEntityTooLarge)
+		return
+	}
+	defer picture.Close()
+
+	imageCtx, err := imgMgr.Upload(picture)
+	if err != nil {
+		log.Println("error creating file", err.Error())
+		handleError(w, "Could not upload image", http.StatusInternalServerError)
+		return
+	}
+
+	err = createPost(PostCreateDto{
+		Title:    title,
+		UserId:   t.UserId,
+		ImageKey: imageCtx.Key,
+		Width:    imageCtx.Width,
+		Height:   imageCtx.Height,
+	})
+	if err != nil {
+		log.Printf("could not insert post. err: %s\n", err.Error())
+		handleError(w, "Could not post your pic :(", http.StatusInternalServerError)
+		return
 	}
 }
 
@@ -173,4 +238,35 @@ func handleError(w http.ResponseWriter, message string, code int) {
 		Message: message,
 		Code:    code,
 	}))
+}
+
+func handleLogin(w http.ResponseWriter, r *http.Request) {
+	if r.Method != "POST" {
+		http.Error(w, "", http.StatusMethodNotAllowed)
+		return
+	}
+
+	dto := CheckPasswordDto{
+		Username: r.FormValue("username"),
+		Password: r.FormValue("password"),
+	}
+
+	found, userId, err := tryFindUser(dto)
+	if err != nil || !found {
+		http.Error(w, "user not found", http.StatusUnauthorized)
+		return
+	}
+
+	token, err := createToken(userId)
+	if err != nil {
+		http.Error(w, "could not create token", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Add("content-type", "application/json; charset=utf-8")
+	w.WriteHeader(http.StatusOK)
+	err = json.NewEncoder(w).Encode(token)
+	if err != nil {
+		log.Printf("failed to encode: %s", err)
+	}
 }

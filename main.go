@@ -19,9 +19,11 @@ func main() {
 	http.Handle("/images/", http.StripPrefix("/images/", imagesFs))
 
 	http.HandleFunc("/rss", handleRssFeed)
-	http.HandleFunc("/postapic", handlePostAPic)
+	http.HandleFunc("/postapic", handlePostapic)
 	http.HandleFunc("/api/posts", handleGetPostsApi)
 	http.HandleFunc("/", handleGetPosts)
+	http.HandleFunc("/api/login", handleLogin)
+	http.HandleFunc("/api/postapic", handleApiPostapic)
 
 	fmt.Println("Listening at :8080")
 	must(http.ListenAndServe(":8080", nil))
