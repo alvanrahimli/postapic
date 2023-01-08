@@ -31,7 +31,10 @@ func handlePostAPic(w http.ResponseWriter, r *http.Request) {
 		users, err = getAllUsers()
 		if err != nil {
 			log.Printf("could not get users. err: %s\n", err.Error())
-			http.Error(w, err.Error(), http.StatusInternalServerError)
+			iHopeSo(tmpl.ExecuteTemplate(w, "error.html", ErrorPageData{
+				Message: "Could not get users",
+				Code:    http.StatusInternalServerError,
+			}))
 			return
 		}
 
@@ -43,19 +46,19 @@ func handlePostAPic(w http.ResponseWriter, r *http.Request) {
 		picture, pictureHeader, err := r.FormFile("picture")
 		if err != nil {
 			log.Printf("Could not get form file. err: %s\n", err.Error())
-			http.Redirect(w, r, "/", http.StatusFound)
+			handleError(w, "Could not get form file", http.StatusBadRequest)
 			return
 		}
 		if pictureHeader.Size > MaxFileSize {
 			log.Printf("Max file upload size exceeded (size: %v)\n", pictureHeader.Size)
-			http.Redirect(w, r, "/postapic", http.StatusFound)
+			handleError(w, "Max file upload size exceeded", http.StatusRequestEntityTooLarge)
 			return
 		}
 		defer picture.Close()
 
 		userId, err := strconv.Atoi(r.FormValue("user_id"))
 		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
+			handleError(w, "Invalid user id", http.StatusBadRequest)
 			return
 		}
 		userPwdDto := UserPasswordDto{
@@ -66,17 +69,17 @@ func handlePostAPic(w http.ResponseWriter, r *http.Request) {
 
 		userExists, userId, err := checkUserPassword(userPwdDto)
 		if !userExists {
-			http.Redirect(w, r, "/", http.StatusFound)
+			handleError(w, "User does not exist", http.StatusNotFound)
 			return
 		} else if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
+			handleError(w, "Something went wrong while validating user", http.StatusInternalServerError)
 			return
 		}
 
 		imageCtx, err := imgMgr.Upload(picture)
 		if err != nil {
 			log.Println("error creating file", err.Error())
-			http.Error(w, err.Error(), http.StatusInternalServerError)
+			handleError(w, "Could not upload image", http.StatusInternalServerError)
 			return
 		}
 
@@ -89,7 +92,7 @@ func handlePostAPic(w http.ResponseWriter, r *http.Request) {
 		})
 		if err != nil {
 			log.Printf("could not insert post. err: %s\n", err.Error())
-			http.Error(w, err.Error(), http.StatusInternalServerError)
+			handleError(w, "Could not post your pic :(", http.StatusInternalServerError)
 			return
 		}
 
@@ -100,7 +103,8 @@ func handlePostAPic(w http.ResponseWriter, r *http.Request) {
 func handleGetPosts(w http.ResponseWriter, _ *http.Request) {
 	posts, err := getAllPosts(0, 1000)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		log.Println(err.Error())
+		handleError(w, "Could not get posts", http.StatusInternalServerError)
 		return
 	}
 
@@ -162,4 +166,11 @@ func handleRssFeed(w http.ResponseWriter, _ *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+}
+
+func handleError(w http.ResponseWriter, message string, code int) {
+	iHopeSo(tmpl.ExecuteTemplate(w, "error.html", ErrorPageData{
+		Message: message,
+		Code:    code,
+	}))
 }

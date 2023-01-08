@@ -10,6 +10,11 @@ type SubmitPageData struct {
 	Users []UserDto
 }
 
+type ErrorPageData struct {
+	Message string
+	Code    int
+}
+
 type UserDto struct {
 	UserId   int    `json:"id"`
 	UserName string `json:"userName"`
