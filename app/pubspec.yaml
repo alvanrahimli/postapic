@@ -16,6 +16,7 @@ dependencies:
   flutter_secure_storage: ^7.0.1
   flutter_bloc: ^8.1.1
   get_it: ^7.2.0
+  image_picker: ^0.8.6
   json_annotation: ^4.7.0
   logging: ^1.1.0
   retrofit: ^3.3.1
@@ -26,9 +27,17 @@ dev_dependencies:
     sdk: flutter
 
   build_runner: ^2.3.3
+  flutter_launcher_icons: ^0.11.0
   flutter_lints: ^2.0.0
   json_serializable: ^6.5.4
   retrofit_generator: ^4.2.0
 
 flutter:
   uses-material-design: true
+
+flutter_icons:
+  android: "ic_launcher"
+  ios: true
+  image_path: "assets/tp.png"
+  adaptive_icon_background: "#FFFFFF"
+  adaptive_icon_foreground: "assets/tp-tp.png"

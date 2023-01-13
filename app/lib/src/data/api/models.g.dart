@@ -43,3 +43,14 @@ Map<String, dynamic> _$UserToJson(User instance) => <String, dynamic>{
       'id': instance.id,
       'userName': instance.userName,
     };
+
+LoginResult _$LoginResultFromJson(Map<String, dynamic> json) => LoginResult(
+      json['token'] as String,
+      User.fromJson(json['user'] as Map<String, dynamic>),
+    );
+
+Map<String, dynamic> _$LoginResultToJson(LoginResult instance) =>
+    <String, dynamic>{
+      'token': instance.token,
+      'user': instance.user,
+    };

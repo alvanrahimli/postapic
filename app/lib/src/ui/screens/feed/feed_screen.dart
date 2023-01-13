@@ -1,8 +1,9 @@
+import 'dart:io';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:get_it/get_it.dart';
 import 'package:postapic/src/config.dart';
 import 'package:postapic/src/data/blocs.dart';
 import 'package:postapic/src/ui/widgets/generic_error_view.dart';
@@ -15,31 +16,28 @@ class FeedScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Post a Pic')),
-      body: BlocProvider(
-        create: (context) => GetIt.instance.get<PostsCubit>(),
-        child: BlocBuilder<PostsCubit, PostsCubitState>(
-          builder: (context, state) {
-            if (!state.hasData && state.isLoading) {
-              return const Center(child: CupertinoActivityIndicator());
-            }
+      appBar: AppBar(title: const Text('Feed')),
+      body: BlocBuilder<PostsCubit, PostsCubitState>(
+        builder: (context, state) {
+          if (!state.hasData && state.isLoading) {
+            return const Center(child: CupertinoActivityIndicator());
+          }
 
-            return FeedList(
-              posts: state.data ?? const [],
-              tailing: state.select(
-                error: (_) => Padding(
-                  padding: const EdgeInsets.all(15),
-                  child: GenericErrorView(error: state.toErrorWithTrace()),
-                ),
-                loading: () => const SizedBox(
-                  height: 50,
-                  child: Center(child: CupertinoActivityIndicator()),
-                ),
-                fallback: () => null,
+          return FeedList(
+            posts: state.data ?? const [],
+            tailing: state.select(
+              error: (_) => Padding(
+                padding: const EdgeInsets.all(15),
+                child: GenericErrorView(error: state.toErrorWithTrace()),
               ),
-            );
-          },
-        ),
+              loading: () => const SizedBox(
+                height: 50,
+                child: Center(child: CupertinoActivityIndicator()),
+              ),
+              fallback: () => null,
+            ),
+          );
+        },
       ),
     );
   }
@@ -70,11 +68,12 @@ class FeedList extends StatelessWidget {
 
     const staticPadding = EdgeInsets.only(bottom: 20);
 
-    return LazyLoader(
+    final Widget leWidget = LazyLoader(
       onEndOfPage: postsCubit.loadMore,
       child: CustomScrollView(
         slivers: [
-          CupertinoSliverRefreshControl(onRefresh: postsCubit.reloadAll),
+          if (Platform.isIOS)
+            CupertinoSliverRefreshControl(onRefresh: postsCubit.reloadAll),
           SliverPadding(
             padding: tailing == null
                 ? mediaQuery.padding.add(staticPadding)
@@ -92,6 +91,15 @@ class FeedList extends StatelessWidget {
             ),
         ],
       ),
+    );
+
+    if (Platform.isIOS) {
+      return leWidget;
+    }
+
+    return RefreshIndicator(
+      onRefresh: postsCubit.reloadAll,
+      child: leWidget,
     );
   }
 }

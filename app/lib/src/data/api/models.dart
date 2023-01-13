@@ -39,3 +39,15 @@ class User {
   Map<String, dynamic> toJson() => _$UserToJson(this);
   factory User.fromJson(Map<String, dynamic> json) => _$UserFromJson(json);
 }
+
+@JsonSerializable()
+class LoginResult {
+  const LoginResult(this.token, this.user);
+
+  final String token;
+  final User user;
+
+  Map<String, dynamic> toJson() => _$LoginResultToJson(this);
+  factory LoginResult.fromJson(Map<String, dynamic> json) =>
+      _$LoginResultFromJson(json);
+}

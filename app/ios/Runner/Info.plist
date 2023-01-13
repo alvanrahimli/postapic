@@ -47,5 +47,12 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Library access is needed in case user wants to upload a picture from their photo gallery.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>Camera usage is needed if user wants to upload a picture taken by camera.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Microphone is not used by the app itself, but is needed for taking a picture using camera.</string>
 </dict>
 </plist>
