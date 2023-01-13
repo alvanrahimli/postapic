@@ -68,38 +68,38 @@ class FeedList extends StatelessWidget {
 
     const staticPadding = EdgeInsets.only(bottom: 20);
 
-    final Widget leWidget = LazyLoader(
-      onEndOfPage: postsCubit.loadMore,
-      child: CustomScrollView(
-        slivers: [
-          if (Platform.isIOS)
-            CupertinoSliverRefreshControl(onRefresh: postsCubit.reloadAll),
-          SliverPadding(
-            padding: tailing == null
-                ? mediaQuery.padding.add(staticPadding)
-                : EdgeInsets.fromLTRB(mediaQuery.padding.left,
-                    mediaQuery.padding.top, mediaQuery.padding.right, 0),
-            sliver: SliverList(
-              delegate: delegate,
-            ),
+    Widget leList = CustomScrollView(
+      slivers: [
+        if (Platform.isIOS)
+          CupertinoSliverRefreshControl(onRefresh: postsCubit.reloadAll),
+        SliverPadding(
+          padding: tailing == null
+              ? mediaQuery.padding.add(staticPadding)
+              : EdgeInsets.fromLTRB(mediaQuery.padding.left,
+                  mediaQuery.padding.top, mediaQuery.padding.right, 0),
+          sliver: SliverList(
+            delegate: delegate,
           ),
-          if (tailing != null)
-            SliverPadding(
-              padding: EdgeInsets.only(bottom: mediaQuery.padding.bottom)
-                  .add(staticPadding),
-              sliver: SliverToBoxAdapter(child: tailing),
-            ),
-        ],
-      ),
+        ),
+        if (tailing != null)
+          SliverPadding(
+            padding: EdgeInsets.only(bottom: mediaQuery.padding.bottom)
+                .add(staticPadding),
+            sliver: SliverToBoxAdapter(child: tailing),
+          ),
+      ],
     );
 
-    if (Platform.isIOS) {
-      return leWidget;
+    if (!Platform.isIOS) {
+      leList = RefreshIndicator(
+        onRefresh: postsCubit.reloadAll,
+        child: leList,
+      );
     }
 
-    return RefreshIndicator(
-      onRefresh: postsCubit.reloadAll,
-      child: leWidget,
+    return LazyLoader(
+      onEndOfPage: postsCubit.loadMore,
+      child: leList,
     );
   }
 }
