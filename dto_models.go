@@ -47,3 +47,9 @@ type CheckPasswordDto struct {
 	Username string
 	Password string
 }
+
+type LoginResponse struct {
+	Token      string    `json:"token"`
+	Expiration time.Time `json:"expiration"`
+	User       *UserDto  `json:"user"`
+}

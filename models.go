@@ -22,6 +22,23 @@ type Token struct {
 	UserId     int       `json:"user_id"`
 }
 
+func getUserById(id int) (*UserDto, error) {
+	db := getDb()
+
+	row := db.QueryRow("SELECT user_id, user_name FROM users WHERE user_id = ?", id)
+	if row.Err() != nil {
+		return nil, row.Err()
+	}
+
+	var user UserDto
+	err := row.Scan(&user.UserId, &user.UserName)
+	if err != nil {
+		return nil, err
+	}
+
+	return &user, nil
+}
+
 func tryFindUser(req CheckPasswordDto) (succeeded bool, userId int, err error) {
 	db := getDb()
 

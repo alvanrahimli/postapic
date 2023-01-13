@@ -4,14 +4,13 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"github.com/alvanrahimli/postapic/image"
 	"html/template"
 	"log"
 	"net/http"
 	"net/url"
 	"strconv"
 	"strings"
-
-	"github.com/alvanrahimli/postapic/image"
 )
 
 var tmpl = template.Must(template.ParseGlob("templates/*"))
@@ -263,9 +262,21 @@ func handleLogin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	user, err := getUserById(userId)
+	if err != nil {
+		http.Error(w, "could not find user", http.StatusInternalServerError)
+		return
+	}
+
+	resp := LoginResponse{
+		Token:      token.Token,
+		Expiration: token.Expiration,
+		User:       user,
+	}
+
 	w.Header().Add("content-type", "application/json; charset=utf-8")
 	w.WriteHeader(http.StatusOK)
-	err = json.NewEncoder(w).Encode(token)
+	err = json.NewEncoder(w).Encode(resp)
 	if err != nil {
 		log.Printf("failed to encode: %s", err)
 	}

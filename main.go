@@ -12,7 +12,7 @@ func main() {
 	must(MakeOrIgnoreDir("db"))
 
 	must(migrate())
-
+    
 	staticFilesFs := http.FileServer(http.Dir("static/"))
 	imagesFs := http.FileServer(http.Dir("images/"))
 	http.Handle("/static/", http.StripPrefix("/static/", staticFilesFs))
