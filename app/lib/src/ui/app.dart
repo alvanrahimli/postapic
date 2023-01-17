@@ -22,7 +22,7 @@ class TheApp extends StatelessWidget {
       child: MaterialApp(
         title: 'Post a Pic',
         debugShowCheckedModeBanner: false,
-        themeMode: ThemeMode.dark,
+        themeMode: ThemeMode.system,
         theme: ThemeData.light(useMaterial3: true),
         darkTheme: ThemeData.dark(useMaterial3: true),
         home: const MainScreen(),
