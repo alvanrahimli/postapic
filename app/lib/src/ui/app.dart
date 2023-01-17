@@ -13,7 +13,10 @@ class TheApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
-        BlocProvider(create: (context) => GetIt.instance.get<AuthCubit>()),
+        BlocProvider(
+          create: (context) => GetIt.instance.get<AuthCubit>(),
+          lazy: false,
+        ),
         BlocProvider(create: (context) => GetIt.instance.get<PostsCubit>()),
       ],
       child: MaterialApp(
