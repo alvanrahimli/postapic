@@ -146,7 +146,7 @@ class UploadJourney {
   }
 
   Future<XFile?> _selectFile() async {
-    final source = await showCupertinoDialog<ImageSource?>(
+    final source = await showCupertinoModalPopup<ImageSource?>(
       context: context,
       builder: (context) => CupertinoActionSheet(
         title: const Text('Choose image source'),
