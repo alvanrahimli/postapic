@@ -13,13 +13,16 @@ class TheApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
-        BlocProvider(create: (context) => GetIt.instance.get<AuthCubit>()),
+        BlocProvider(
+          create: (context) => GetIt.instance.get<AuthCubit>(),
+          lazy: false,
+        ),
         BlocProvider(create: (context) => GetIt.instance.get<PostsCubit>()),
       ],
       child: MaterialApp(
         title: 'Post a Pic',
         debugShowCheckedModeBanner: false,
-        themeMode: ThemeMode.dark,
+        themeMode: ThemeMode.system,
         theme: ThemeData.light(useMaterial3: true),
         darkTheme: ThemeData.dark(useMaterial3: true),
         home: const MainScreen(),
