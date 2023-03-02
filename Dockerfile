@@ -2,8 +2,6 @@ FROM alpine:3.16 AS base
 RUN apk add \
   --update \
   --no-cache \
-  --repository http://dl-3.alpinelinux.org/alpine/edge/community \
-  --repository http://dl-3.alpinelinux.org/alpine/edge/main \
   vips
 
 FROM golang:1.19-alpine3.16 AS sdk
