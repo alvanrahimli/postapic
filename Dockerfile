@@ -6,7 +6,7 @@ RUN apk add \
   --repository http://dl-3.alpinelinux.org/alpine/edge/main \
   vips
 
-FROM golang:1.19-alpine AS sdk
+FROM golang:1.19-alpine3.16 AS sdk
 RUN apk add \
   --update \
   --no-cache \
