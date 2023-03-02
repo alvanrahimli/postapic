@@ -1,7 +1,7 @@
 version: "3.9"
 services:
   platform:
-    image: alvanrahimli/postapic
+    image: ghcr.io/alvanrahimli/postapic:master
     container_name: postapic
     build:
       context: .
