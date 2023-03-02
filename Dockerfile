@@ -29,4 +29,5 @@ EXPOSE 8080
 COPY ./static /app/static
 COPY ./templates /app/templates
 COPY --from=build /server /app/server
+
 CMD [ "/app/server" ]
