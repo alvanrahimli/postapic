@@ -23,7 +23,7 @@
         <ul id="postfeed">
             {{range .Posts}}
                 <li id="post-{{.PostId}}">
-                    <h5>{{.Title}}</h5>
+                    <a href="#post-{{.PostId}}"><h5>{{.Title}}</h5></a>
                     <img lazy-src="{{.Image.Url}}" alt="Post by {{.Author.UserName}}" loading="lazy">
                     <div class="image-footer">
                         <p>@ {{- .Author.UserName }}</p>
