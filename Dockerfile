@@ -1,4 +1,4 @@
-FROM alpine:latest AS base
+FROM alpine:3.16 AS base
 RUN apk add \
   --update \
   --no-cache \
