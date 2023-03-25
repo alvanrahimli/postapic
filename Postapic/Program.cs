@@ -1,6 +1,9 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
 using Postapic.Models;
+using Upload.Core;
+using Upload.Core.Browser;
+using Upload.Disk;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,6 +17,12 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
     .AddCookie(options =>
     {
         options.ExpireTimeSpan = TimeSpan.FromDays(28);
+    });
+builder.Services.AddUploadNet()
+    .AddDiskProvider("primary", options =>
+    {
+        options.Browser = new DefaultStorageBrowser(builder.Configuration["UploadNet:UrlFormat"]);
+        options.Directory = builder.Configuration["UploadNet:Directory"];
     });
 
 var app = builder.Build();
@@ -41,5 +50,6 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapRazorPages();
+app.MapUploadedStaticFiles("/media", "primary");
 
 app.Run();
