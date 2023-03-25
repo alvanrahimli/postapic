@@ -5,7 +5,6 @@
     Layout = "Shared/_Layout";
 }
 
-<p><strong>Users</strong></p>
 @if (ViewData["user-action-msg"] != null)
 {
     <p class="notice">@ViewData["user-action-msg"]</p>
@@ -15,58 +14,60 @@
     <p class="notice">@ViewData["toggle-admin-msg"]</p>
 }
 
-<table>
-    <thead>
-    <tr>
-        <th>Username</th>
-        <th>Role</th>
-    </tr>
-    </thead>
-    <tbody>
-    @foreach (var user in Model.UserList)
-    {
-        var isCurrent = User.Identity!.Name == user.Username;
-        var confirmMessage = user.IsAdmin ? "Removing admin. Are you sure?" : $"Making '{user.Username}' admin. Are you sure?";
+<section class="card user-table">
+    <h1>Users</h1>
+    <table>
+        <thead>
         <tr>
-            <td>@user.Username @(isCurrent ? "(you)" : "")</td>
-            <td>@(user.IsAdmin ? "Admin" : "User")</td>
-            <td>
-                <form method="post" asp-page-handler="DeleteUser" data-confirm="Deleting '@user.Username'. Are you sure?">
-                    <input type="hidden" asp-for="DeleteUserId" value="@user.Id">
-                    <button type="submit" disabled="@isCurrent">Delete</button>
-                </form>
-                <form method="post" asp-page-handler="ToggleAdmin" data-confirm="@confirmMessage">
-                    <input type="hidden" asp-for="ToggleAdminUserId" value="@user.Id">
-                    <button type="submit" disabled="@isCurrent">Toggle role</button>
-                </form>
-            </td>
+            <th>Username</th>
+            <th>Role</th>
+            <th>Actions</th>
         </tr>
-    }
-    </tbody>
-</table>
-<br>
+        </thead>
+        <tbody>
+        @foreach (var user in Model.UserList)
+            {
+                var isCurrentUser = User.Identity!.Name == user.Username;
+                var confirmMessage = user.IsAdmin ? "Removing admin. Are you sure?" : $"Making '{user.Username}' admin. Are you sure?";
+                <tr>
+                    <td>@user.Username @(isCurrentUser ? "(you)" : "")</td>
+                    <td>@(user.IsAdmin ? "Admin" : "User")</td>
+                    <td>
+                        @if (!isCurrentUser)
+                        {
+                            <form method="post" asp-page-handler="DeleteUser" data-confirm="Deleting '@user.Username'. Are you sure?">
+                                <input type="hidden" asp-for="DeleteUserId" value="@user.Id">
+                                <button type="submit" class="action-btn" disabled="@isCurrentUser">Delete</button>
+                            </form>
+                            <form method="post" asp-page-handler="ToggleAdmin" data-confirm="@confirmMessage">
+                                <input type="hidden" asp-for="ToggleAdminUserId" value="@user.Id">
+                                <button type="submit" class="action-btn" disabled="@isCurrentUser">Toggle role</button>
+                            </form>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</section>
 
-<form method="post" asp-page-handler="CreateUser">
-    @if (!string.IsNullOrEmpty(Model.UiMessage))
-    {
-        <p class="notice">@Model.UiMessage</p>
-    }
-    <p><strong>Create a new user</strong></p>
+<section class="card create-user-form">
+    <h1>Create New User</h1>
+    <form method="post" asp-page-handler="CreateUser">
+        <div class="input-group">
+            <label asp-for="UserModel.Username">Username</label>
+            <input type="text" asp-for="UserModel.Username" required>
+        </div>
+        <div class="input-group">
+            <label asp-for="UserModel.Password">Password</label>
+            <input type="password" asp-for="UserModel.Password" required>
+        </div>
+        <div class="input-group">
+            <label asp-for="UserModel.IsAdmin">Is admin?</label>
+            <input type="checkbox" asp-for="UserModel.IsAdmin">
+        </div>
+        
+        <button type="submit" class="submit-btn">Create User</button>
+    </form>
+</section>
 
-    <p>
-        <label for="input_username">Username</label>
-        <input id="input_username" type="text" asp-for="UserModel.Username"/>
-    </p>
-    <p>
-        <label for="input_password">Password</label>
-        <input id="input_password" type="password" asp-for="UserModel.Password"/>
-    </p>
-    <p>
-        <label for="chk_remember">
-            <input id="chk_remember" type="checkbox" asp-for="UserModel.IsAdmin">
-            Admin
-        </label>
-    </p>
-
-    <button type="submit">Submit</button>
-</form>

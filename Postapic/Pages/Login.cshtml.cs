@@ -43,12 +43,13 @@ public class Login : PageModel
         var claims = new List<Claim>
         {
             new(ClaimTypes.Name, user.Username),
+            new(ClaimTypes.NameIdentifier, user.Id.ToString()),
             new(ClaimTypes.Role, user.IsAdmin ? "Admin" : "User")
         };
         var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
         await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme,
             new ClaimsPrincipal(claimsIdentity), new AuthenticationProperties()
-                { IsPersistent = LoginModel.RememberMe });
+                { IsPersistent = true });
 
         return RedirectToPage("/Index");
     }
@@ -58,5 +59,4 @@ public class LoginModel
 {
     public string Username { get; set; } = null!;
     public string Password { get; set; } = null!;
-    public bool RememberMe { get; set; }
 }

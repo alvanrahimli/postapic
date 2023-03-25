@@ -6,38 +6,46 @@
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>@ViewData["Title"] - Postapic</title>
-    <environment include="Development">
-        <link rel="stylesheet" href="~/lib/simple.css"/>
-    </environment>
-    <environment include="Production">
-        <link rel="stylesheet" href="~/lib/simple.min.css"/>
-    </environment>
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true"/>
 </head>
 <body>
 <header>
     <nav>
-        <a href="/" class="@GetNavClass("/")">Browse all</a>
-        <a href="/post" class="@GetNavClass("/post")">Post a pic!</a>
-        @if (!User.Identity?.IsAuthenticated ?? false)
-        {
-            <a href="/login" class="@GetNavClass("/login")">Log in</a>
-        }
-        else
-        {
-            if (User.IsInRole("Admin"))
+        <a href="/" class="nav-logo">Post a pic!</a>
+        
+        <ul class="nav-menu container">
+            <li><a href="/" class="@GetNavClass("/")">Explore</a></li>
+            <li><a href="#" class="post-btn">Post a pic!</a></li>
+        </ul>
+        
+        <div class="nav-user dropdown">
+            @if (!User.Identity?.IsAuthenticated ?? true)
             {
-                <a href="/settings" class="@GetNavClass("/settings")">Settings</a>
+                <span class="user-name"><a href="/login">Login</a></span>
             }
-            <a href="/logout" class="@GetNavClass("/logout")">@User.Identity!.Name - Log out</a>
-        }
+            else
+            {
+                <span class="dropdown-toggle user-name">@User.Identity!.Name</span>
+                <ul class="dropdown-menu">
+                    @if (User.IsInRole("Admin"))
+                    {
+                    <li><a href="/settings" class="@GetNavClass("/settings")">Settings</a></li>
+                    }
+                    <li><a href="/logout" class="@GetNavClass("/logout")">@User.Identity.Name - Log out</a></li>
+                </ul>
+            }
+        </div>
     </nav>
-    <h1>Post a pic!</h1>
-    <p>Here you are, all the pics for you</p>
 </header>
 
+<form class="upload-form hidden" asp-page="/PostPage" asp-page-handler="CreateDraft" method="post" enctype="multipart/form-data">
+    <input type="file" name="files" accept="image/*" multiple />
+</form>
+
 <main role="main" class="pb-3">
-    @RenderBody()
+    <div class="container">
+        @RenderBody()
+    </div>
 </main>
 
 <footer>

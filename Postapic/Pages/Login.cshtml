@@ -10,23 +10,17 @@
     <p class="notice">@Model.UiMessage</p>
 }
 
-<form method="post">
-    <p><strong>Log in to your account</strong></p>
-    
-    <p>
-        <label for="input_username">Username</label>
-        <input id="input_username" type="text" asp-for="LoginModel.Username"/>
-    </p>
-    <p>
-        <label for="input_password">Password</label>
-        <input id="input_password" type="password" asp-for="LoginModel.Password"/>
-    </p>
-    <p>
-        <label for="chk_remember">
-            <input id="chk_remember" type="checkbox" checked="checked" asp-for="LoginModel.RememberMe">
-            Remember me
-        </label>
-    </p>
-    
-    <button type="submit">Log in</button>
-</form>
+<section class="card login-form">
+    <h1>Log in to your account</h1>
+    <form method="POST">
+        <div class="input-group">
+            <label asp-for="LoginModel.Username">Username</label>
+            <input type="text" asp-for="LoginModel.Username" required>
+        </div>
+        <div class="input-group">
+            <label asp-for="LoginModel.Password">Password</label>
+            <input type="password" asp-for="LoginModel.Password" required>
+        </div>
+        <button type="submit" class="submit-btn">Login</button>
+    </form>
+</section>

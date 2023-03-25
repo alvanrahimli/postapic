@@ -8,11 +8,42 @@
     @foreach (var post in Model.Posts)
     {
         <div class="post">
-            <p>@post.Title</p>
-            <figure>
-                <img src="@(post.Medias.First().Key)" alt="@post.Title">
-                <figcaption>By @post.User.Username | @post.Timestamp.ToShortDateString()</figcaption>
-            </figure>
+            <div class="post-header">
+                <div class="post-meta">
+                    <span class="post-author">@post.User.Username</span>
+                    <span class="post-time">@post.Timestamp</span>
+                </div>
+                <div class="post-menu dropdown">
+                    <span class="dropdown-toggle">⋮</span>
+                    <ul class="dropdown-menu">
+                        <li><a href="#">Copy Link</a></li>
+                        <li><a href="/remove">Remove</a></li>
+                    </ul>
+                </div>
+            </div>
+            <h2>@post.Title</h2>
+            @if (post.Medias.Count > 1)
+            {
+                <div class="media carousel">
+                    @foreach (var media in post.Medias)
+                    {
+                        <img src="@media.Key" alt="Media for post with title @post.Title">
+                    }
+                </div>
+                <div class="carousel-indicators">
+                    <span class="active"></span>
+                    @for (var i = 0; i < post.Medias.Count - 1; i++)
+                    {
+                        <span></span>
+                    }
+                </div>
+            }
+            else
+            {
+                <div class="media">
+                    <img src="@(post.Medias.FirstOrDefault()?.Key ?? "https://http.cat/200")" alt="Media for post with title @post.Title">
+                </div>
+            }
         </div>
     }
 </div>
