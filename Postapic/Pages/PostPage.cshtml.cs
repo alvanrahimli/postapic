@@ -35,7 +35,7 @@ public class PostPage : PageModel
                 $"{DateTime.UtcNow:yyyy-MM-ddThh-mm-ss}-{Random.Shared.Next(10, 100)}{Path.GetExtension(formFile.FileName)}", stream);
             medias.Add(new Media
             {
-                Key = $"media/{fileRef.Key}",
+                Key = $"/media/{fileRef.Key}",
                 Height = 15,
                 Width = 15,
                 Type = MediaType.Image
@@ -65,10 +65,19 @@ public class PostPage : PageModel
     {
         var draft = await _context.Posts.FirstOrDefaultAsync(p => p.Id == SubmitPostDto.DraftId && p.Draft);
         if (draft is null) return RedirectToPage("/Error");
+        
 
         draft.Title = SubmitPostDto.Title;
         if (!string.IsNullOrEmpty(SubmitPostDto.Permalink?.Trim()))
         {
+            if (int.TryParse(SubmitPostDto.Permalink.Trim(), out var _))
+            {
+                ViewData["error-msg"] = "Permalink can't be a number. Please change and publish again";
+                draft.Permalink = string.Empty;
+                DraftPost = draft;
+                return Page();
+            }
+            
             var samePermalink = await _context.Posts.FirstOrDefaultAsync(p => p.Permalink == SubmitPostDto.Permalink.Replace(' ', '_'));
             if (samePermalink is null)
             {

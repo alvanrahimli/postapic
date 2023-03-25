@@ -1,0 +1,47 @@
+@page "/p/{idOrPermalink}"
+@model Postapic.Pages.SinglePost
+
+@{
+    Layout = "Shared/_Layout";
+}
+
+<div class="feed">
+    <div class="post">
+        <div class="post-header">
+            <div class="post-meta">
+                <span class="post-author">@Model.Post.User.Username</span>
+                <span class="post-time">@Model.Post.Timestamp</span>
+            </div>
+            <div class="post-menu dropdown">
+                <span class="dropdown-toggle">⋮</span>
+                <ul class="dropdown-menu">
+                    <li><a href="#">Copy Link</a></li>
+                    <li><a href="/remove">Remove</a></li>
+                </ul>
+            </div>
+        </div>
+        <h2>@Model.Post.Title</h2>
+        @if (Model.Post.Medias.Count > 1)
+        {
+            <div class="media carousel">
+                @foreach (var media in Model.Post.Medias)
+                {
+                    <img src="@media.Key" alt="Media for post with title @Model.Post.Title">
+                }
+            </div>
+            <div class="carousel-indicators">
+                <span class="active"></span>
+                @for (var i = 0; i < Model.Post.Medias.Count - 1; i++)
+                {
+                    <span></span>
+                }
+            </div>
+        }
+        else
+        {
+            <div class="media">
+                <img src="@(Model.Post.Medias.FirstOrDefault()?.Key ?? "https://http.cat/200")" alt="Media for post with title @Model.Post.Title">
+            </div>
+        }
+    </div>
+</div>
