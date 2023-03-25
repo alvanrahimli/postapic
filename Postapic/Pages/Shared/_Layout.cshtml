@@ -1,0 +1,56 @@
+﻿@inject IHttpContextAccessor ContextAccessor
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>@ViewData["Title"] - Postapic</title>
+    <environment include="Development">
+        <link rel="stylesheet" href="~/lib/simple.css"/>
+    </environment>
+    <environment include="Production">
+        <link rel="stylesheet" href="~/lib/simple.min.css"/>
+    </environment>
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true"/>
+</head>
+<body>
+<header>
+    <nav>
+        <a href="/" class="@GetNavClass("/")">Browse all</a>
+        <a href="/post" class="@GetNavClass("/post")">Post a pic!</a>
+        @if (!User.Identity?.IsAuthenticated ?? false)
+        {
+            <a href="/login" class="@GetNavClass("/login")">Log in</a>
+        }
+        else
+        {
+            if (User.IsInRole("Admin"))
+            {
+                <a href="/settings" class="@GetNavClass("/settings")">Settings</a>
+            }
+            <a href="/logout" class="@GetNavClass("/logout")">@User.Identity!.Name - Log out</a>
+        }
+    </nav>
+    <h1>Post a pic!</h1>
+    <p>Here you are, all the pics for you</p>
+</header>
+
+<main role="main" class="pb-3">
+    @RenderBody()
+</main>
+
+<footer>
+    <p>Post a pic! was created by <a href="https://www.rahim.li">Alvan Rahimli</a> and is licensed under the <a href="https://www.gnu.org/licenses/gpl-3.0.html">GNU GPL 3.0</a></p>
+</footer>
+
+<script src="~/js/site.js" asp-append-version="true"></script>
+</body>
+</html>
+
+@{
+    string GetNavClass(string url)
+    {
+        return ContextAccessor.HttpContext?.Request.Path == url ? "active" : string.Empty;
+    }
+}

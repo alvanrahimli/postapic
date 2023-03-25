@@ -1,5 +1,5 @@
-images/
-.vscode/
-users.json
-postapic.db
+bin/
+obj/
 .idea/
+postapic.db*
+

@@ -1,0 +1,12 @@
+@page "/logout"
+@model Postapic.Pages.Logout
+
+@{
+    Layout = "Shared/_Layout";
+}
+
+<form method="post">
+    <p><strong>Are you sure to log out?</strong></p>
+    <button type="submit">Yes, please.</button>
+    <a href="/" style="margin-left: 1em;">Nope, take me back</a>
+</form>

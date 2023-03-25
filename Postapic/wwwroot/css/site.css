@@ -1,0 +1,5 @@
+a.active {
+  /*font-weight: bold;*/
+  border-color: var(--accent) !important;
+  color: var(--accent) !important;
+}

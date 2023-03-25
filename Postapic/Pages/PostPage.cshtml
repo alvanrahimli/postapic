@@ -1,0 +1,28 @@
+@page "/post"
+@model Postapic.Pages.PostPage
+
+@{
+    Layout = "Shared/_Layout";
+}
+
+<form method="post">
+    <p><strong>Enter title, attach media and submit</strong></p>
+    <p>
+        <label for="input_title">Title</label>
+        <input id="input_title" type="text" name="title">
+    </p>
+    <p>
+        <label for="input_media">Media (multiple selection allowed)</label>
+        <input id="input_media" type="file" name="media" multiple="multiple">
+    </p>
+    
+    <details>
+        <summary>Advanced</summary>
+        <p>
+            <label for="input_permalink">Permalink</label>
+            <input id="input_permalink" type="text" name="permalink">
+        </p>
+    </details>
+    
+    <button type="submit">Submit</button>
+</form>

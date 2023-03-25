@@ -1,0 +1,18 @@
+﻿@page "/"
+@model IndexModel
+@{
+    ViewData["Title"] = "Home page";
+}
+
+<div class="feed">
+    @foreach (var post in Model.Posts)
+    {
+        <div class="post">
+            <p>@post.Title</p>
+            <figure>
+                <img src="@(post.Medias.First().Key)" alt="@post.Title">
+                <figcaption>By @post.User.Username | @post.Timestamp.ToShortDateString()</figcaption>
+            </figure>
+        </div>
+    }
+</div>

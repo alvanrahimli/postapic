@@ -1,0 +1,32 @@
+@page "/login"
+@model Postapic.Pages.Login
+
+@{
+    Layout = "Shared/_Layout";
+}
+
+@if (!string.IsNullOrEmpty(Model.UiMessage))
+{
+    <p class="notice">@Model.UiMessage</p>
+}
+
+<form method="post">
+    <p><strong>Log in to your account</strong></p>
+    
+    <p>
+        <label for="input_username">Username</label>
+        <input id="input_username" type="text" asp-for="LoginModel.Username"/>
+    </p>
+    <p>
+        <label for="input_password">Password</label>
+        <input id="input_password" type="password" asp-for="LoginModel.Password"/>
+    </p>
+    <p>
+        <label for="chk_remember">
+            <input id="chk_remember" type="checkbox" checked="checked" asp-for="LoginModel.RememberMe">
+            Remember me
+        </label>
+    </p>
+    
+    <button type="submit">Log in</button>
+</form>
