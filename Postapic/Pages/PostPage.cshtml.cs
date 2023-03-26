@@ -2,8 +2,11 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using Postapic.Models;
 using Postapic.Models.Enums;
+using Postapic.Utils;
+using SixLabors.ImageSharp.Formats.Gif;
 using Upload.Core;
 
 namespace Postapic.Pages;
@@ -12,11 +15,15 @@ public class PostPage : PageModel
 {
     private readonly DataContext _context;
     private readonly StorageManager _storageManager;
+    private readonly IOptions<AppConfig> _appConfig;
+    private readonly Size _maxSize;
 
-    public PostPage(DataContext context, StorageManager storageManager)
+    public PostPage(DataContext context, StorageManager storageManager, IOptions<AppConfig> appConfig)
     {
         _context = context;
         _storageManager = storageManager;
+        _appConfig = appConfig;
+        _maxSize = new Size(_appConfig.Value.MediaConfig.MaxWidth, _appConfig.Value.MediaConfig.MaxHeight);
     }
     
     [BindProperty] public SubmitPostModel SubmitPostDto { get; set; }
@@ -31,15 +38,39 @@ public class PostPage : PageModel
         foreach (var formFile in Request.Form.Files)
         {
             await using var stream = formFile.OpenReadStream();
-            var fileRef = await _storageManager.CreateFile("primary",
-                $"{DateTime.UtcNow:yyyy-MM-ddThh-mm-ss}-{Random.Shared.Next(10, 100)}{Path.GetExtension(formFile.FileName)}", stream);
-            medias.Add(new Media
+            using var image = await Image.LoadAsync(stream);
             {
-                Key = $"/media/{fileRef.Key}",
-                Height = 15,
-                Width = 15,
-                Type = MediaType.Image
-            });
+                image.Mutate(i => i.Resize(new ResizeOptions
+                {
+                    Mode = ResizeMode.Max,
+                    Size = _maxSize
+                }).AutoOrient());
+                
+                var output = new MemoryStream();
+                // Don't convert GIFs to webp format, just copy
+                if (image.Metadata.DecodedImageFormat == GifFormat.Instance)
+                {
+                    stream.Position = 0;
+                    await stream.CopyToAsync(output);
+                }
+                else
+                {
+                    await image.SaveAsWebpAsync(output);
+                }
+                
+                output.Position = 0;
+                var now = DateTime.UtcNow;
+                var fileName = $"{now.Year}/{now.Month}/{now:yyyy-MM-ddThh-mm-ss}-{Random.Shared.Next(10, 100)}.webp";
+                var fileRef = await _storageManager.CreateFile("primary", fileName, output);
+
+                medias.Add(new Media
+                {
+                    Key = $"/media/{fileRef.Key}",
+                    Height = image.Height,
+                    Width = image.Width,
+                    Type = MediaType.Image
+                });
+            }
         }
 
         var draftPost = new Post
