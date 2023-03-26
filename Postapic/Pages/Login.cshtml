@@ -5,13 +5,17 @@
     Layout = "Shared/_Layout";
 }
 
-@if (!string.IsNullOrEmpty(Model.UiMessage))
-{
-    <p class="notice">@Model.UiMessage</p>
-}
+
 
 <section class="card post-form">
-    <h1>Log in to your account</h1>
+    @if (!string.IsNullOrEmpty(Model.UiMessage))
+    {
+        <h1 class="warning">@Model.UiMessage</h1>
+    }
+    else
+    {
+        <h1>Log in to your account</h1>
+    }
     <form method="POST">
         <div class="input-group">
             <label asp-for="LoginModel.Username">Username</label>

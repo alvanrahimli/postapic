@@ -11,8 +11,8 @@ using Postapic.Models;
 namespace Postapic.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20230325094427_PostTimestamp")]
-    partial class PostTimestamp
+    [Migration("20230325202400_Initial")]
+    partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -76,8 +76,10 @@ namespace Postapic.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
+                    b.Property<bool>("Draft")
+                        .HasColumnType("INTEGER");
+
                     b.Property<string>("Permalink")
-                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<DateTime>("Timestamp")

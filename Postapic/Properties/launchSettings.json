@@ -14,7 +14,10 @@
       "launchBrowser": true,
       "applicationUrl": "https://localhost:7297;http://localhost:5222",
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "ADMIN_USERNAME": "DevAdmin",
+        "ADMIN_PASSWORD": "1234",
+        "AUTHORIZE_INDEX": "true"
       }
     },
     "IIS Express": {

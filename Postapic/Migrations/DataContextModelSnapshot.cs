@@ -78,7 +78,6 @@ namespace Postapic.Migrations
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("Permalink")
-                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<DateTime>("Timestamp")

@@ -1,13 +1,28 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
 using Postapic.Models;
+using Postapic.Utils;
 using Upload.Core;
 using Upload.Core.Browser;
 using Upload.Disk;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddRazorPages();
+builder.Services.Configure<AppConfig>(builder.Configuration.GetSection(AppConfig.ConfigName));
+builder.Services.AddRazorPages(options =>
+{
+    options.Conventions.AuthorizePage("/LogOut");
+    options.Conventions.AuthorizeFolder("/Settings");
+    options.Conventions.AuthorizePage("/PostPage");
+    
+    if (Environment.GetEnvironmentVariable("AUTHORIZE_INDEX")?.ToUpper() == "TRUE")
+    {
+        options.Conventions.AuthorizePage("/Index");
+        options.Conventions.AuthorizePage("/SinglePost");
+    }
+
+    options.Conventions.AllowAnonymousToPage("/Login");
+});
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddDbContext<DataContext>(options =>
 {
@@ -17,6 +32,8 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
     .AddCookie(options =>
     {
         options.ExpireTimeSpan = TimeSpan.FromDays(28);
+        options.LoginPath = "/login";
+        options.LogoutPath = "/logout";
     });
 builder.Services.AddUploadNet()
     .AddDiskProvider("primary", options =>
@@ -33,6 +50,8 @@ await using var scope = app.Services.CreateAsyncScope();
     var db = scope.ServiceProvider.GetRequiredService<DataContext>();
     await db.Database.MigrateAsync();
 }
+
+await Initialization.InitializeAdmin(app.Services);
 
 if (!app.Environment.IsDevelopment())
 {

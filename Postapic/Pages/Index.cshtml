@@ -1,5 +1,7 @@
 ﻿@page "/"
+@using Microsoft.Extensions.Options
 @model IndexModel
+@inject IOptions<AppConfig> AppConfig
 @{
     ViewData["Title"] = "Home page";
 }
@@ -7,6 +9,7 @@
 <div class="feed">
     @foreach (var post in Model.Posts)
     {
+        var linkToPost = System.IO.Path.Join(AppConfig.Value.BaseUrl, "p", post.Permalink ?? post.Id.ToString());
         <div class="post">
             <div class="post-header">
                 <div class="post-meta">
@@ -16,8 +19,16 @@
                 <div class="post-menu dropdown">
                     <span class="dropdown-toggle">⋮</span>
                     <ul class="dropdown-menu">
-                        <li><a href="#">Copy Link</a></li>
-                        <li><a href="/remove">Remove</a></li>
+                        <li><a href="#" onclick="navigator.clipboard.writeText('@linkToPost');">Copy Link</a></li>
+                        @if (DateTime.UtcNow.Subtract(post.Timestamp).TotalMinutes < 1)
+                        {
+                            <li>
+                                <form asp-page-handler="DeletePost">
+                                    <input type="hidden" asp-for="DeletePostId" value="@post.Id">
+                                    <a href="javascript:void(0)" onclick="e.targetElement.closest('form').submit()">Remove</a>
+                                </form>
+                            </li>
+                        }
                     </ul>
                 </div>
             </div>
@@ -46,4 +57,16 @@
             }
         </div>
     }
+    
+    <p class="pagination">
+        <a href="?">&lt;&lt;</a>
+        <a href="?">&lt;</a>
+        <a href="?">12</a>
+        <a href="?">&gt;</a>
+        <a href="?">&gt;&gt;</a>
+    </p>
 </div>
+
+@{
+    
+}
