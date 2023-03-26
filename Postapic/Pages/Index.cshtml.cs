@@ -41,7 +41,7 @@ public class IndexModel : PageModel
             .Skip(offset).Take(_appConfig.Value.PageSize)
             .ToListAsync();
         
-        var count = await _context.Posts.CountAsync();
+        var count = await _context.Posts.Where(p => !p.Draft).CountAsync();
         var lastPage = count / _appConfig.Value.PageSize;
         
         Pagination = new PaginationModel
