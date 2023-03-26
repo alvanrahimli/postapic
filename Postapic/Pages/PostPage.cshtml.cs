@@ -50,6 +50,7 @@ public class PostPage : PageModel
                 // Don't convert GIFs to webp format, just copy
                 if (image.Metadata.DecodedImageFormat == GifFormat.Instance)
                 {
+                    // TODO: Resize do not mutate GIFs because we use original stream. SaveAsGif distorts GIF itself
                     stream.Position = 0;
                     await stream.CopyToAsync(output);
                 }
