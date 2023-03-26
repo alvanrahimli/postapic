@@ -15,7 +15,7 @@ public static class Initialization
 
         var adminUsername = Environment.GetEnvironmentVariable("ADMIN_USERNAME");
         var adminPassword = Environment.GetEnvironmentVariable("ADMIN_PASSWORD");
-            
+        
         if (string.IsNullOrEmpty(adminUsername))
             throw new InitializationException("Environment variable ADMIN_USERNAME is not defined");
         if (string.IsNullOrEmpty(adminPassword))

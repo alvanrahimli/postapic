@@ -99,3 +99,11 @@ document.querySelectorAll('[data-confirm]').forEach((el) => {
         });
     });
 })();
+
+async function copyLink(el, link) {
+    await navigator.clipboard.writeText(link);
+    el.innerText = "Copied!";
+    setTimeout(() => {
+        el.innerText = "Copy link"
+    }, 2000)
+}

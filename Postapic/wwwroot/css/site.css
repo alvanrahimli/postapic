@@ -271,6 +271,17 @@ nav .nav-menu li {
   transition: color 0.3s ease;
 }
 
+.dropdown-menu button,
+.dropdown-menu button:hover {
+  background-color: inherit;
+  border: 0;
+  color: var(--dark-text-color);
+  font-size: 1rem;
+  width: 100%;
+  text-align: start;
+  cursor: pointer;
+}
+
 .dropdown-menu li:hover {
   background-color: #f0f0f0;
 }
@@ -461,4 +472,10 @@ td form {
 .pagination {
   text-align: center;
   margin-top: 1rem;
+}
+
+.input-tip {
+  font-size: 0.8rem;
+  opacity: 0.8;
+  margin-top: .2rem;
 }

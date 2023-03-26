@@ -19,13 +19,15 @@
                 <div class="post-menu dropdown">
                     <span class="dropdown-toggle">⋮</span>
                     <ul class="dropdown-menu">
-                        <li><a href="#" onclick="navigator.clipboard.writeText('@linkToPost');">Copy Link</a></li>
+                        <li>
+                            <button onclick="copyLink(this, '@linkToPost');">Copy link</button>
+                        </li>
                         @if (DateTime.UtcNow.Subtract(post.Timestamp).TotalMinutes < 1)
                         {
                             <li>
-                                <form asp-page-handler="DeletePost">
+                                <form asp-page-handler="DeletePost" data-confirm="Do you want to delete post '@post.Title'?">
                                     <input type="hidden" asp-for="DeletePostId" value="@post.Id">
-                                    <a href="javascript:void(0)" onclick="e.targetElement.closest('form').submit()">Remove</a>
+                                    <button type="submit">Remove</button>
                                 </form>
                             </li>
                         }
@@ -59,11 +61,19 @@
     }
     
     <p class="pagination">
-        <a href="?">&lt;&lt;</a>
-        <a href="?">&lt;</a>
-        <a href="?">12</a>
-        <a href="?">&gt;</a>
-        <a href="?">&gt;&gt;</a>
+        @if (Model.Pagination.ShowBackwardControls)
+        {
+            <a href="?page=@Model.Pagination.FirstPage">&lt;&lt;</a>
+            <a href="?page=@Model.Pagination.PreviousPage">&lt;</a>
+        }
+        
+        <a>@Model.Pagination.CurrentPage</a>
+        
+        @if (Model.Pagination.ShowForwardControls)
+        {
+            <a href="?page=@Model.Pagination.NextPage">&gt;</a>
+            <a href="?page=@Model.Pagination.LastPage">&gt;&gt;</a>
+        }
     </p>
 </div>
 

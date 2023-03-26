@@ -17,7 +17,8 @@
     <form method="post" asp-page-handler="Publish">
         <div class="input-group">
             <label asp-for="SubmitPostDto.Title">Title</label>
-            <input type="text" asp-for="SubmitPostDto.Title" required placeholder="Explain the post..">
+            <input type="text" asp-for="SubmitPostDto.Title" required placeholder="Explain the post.." autofocus="autofocus">
+            <p class="input-tip">You can delete within a minute after publishing</p>
         </div>
         <details style="margin-bottom: 1rem">
             <summary>Advanced</summary>

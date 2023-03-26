@@ -66,7 +66,6 @@ public class PostPage : PageModel
         var draft = await _context.Posts.FirstOrDefaultAsync(p => p.Id == SubmitPostDto.DraftId && p.Draft);
         if (draft is null) return RedirectToPage("/Error");
         
-        draft.Title = SubmitPostDto.Title;
         draft.Permalink = null;
         if (!string.IsNullOrEmpty(SubmitPostDto.Permalink?.Trim()))
         {
@@ -92,6 +91,8 @@ public class PostPage : PageModel
             }
         }
 
+        draft.Title = SubmitPostDto.Title;
+        draft.Timestamp = DateTime.UtcNow;
         draft.Draft = false;
         await _context.SaveChangesAsync();
         return RedirectToPage("/Index");
