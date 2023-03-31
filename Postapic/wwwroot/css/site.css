@@ -217,6 +217,12 @@ nav .nav-menu li {
   font-weight: bold;
 }
 
+@media only screen and (max-width: 720px) {
+  .nav-logo {
+    display: none;
+  }
+}
+
 .post-btn,
 .submit-btn {
   background-color: var(--primary-color);
