@@ -10,7 +10,7 @@
         <div class="post-header">
             <div class="post-meta">
                 <span class="post-author">@Model.Post.User.Username</span>
-                <span class="post-time">@Model.Post.Timestamp</span>
+                <span class="post-time">@Model.Post.Timestamp.ToLocalTime()</span>
             </div>
             <div class="post-menu dropdown">
                 <span class="dropdown-toggle">⋮</span>

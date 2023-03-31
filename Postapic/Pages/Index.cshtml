@@ -14,7 +14,7 @@
             <div class="post-header">
                 <div class="post-meta">
                     <span class="post-author">@post.User.Username</span>
-                    <span class="post-time">@post.Timestamp</span>
+                    <span class="post-time">@post.Timestamp.ToLocalTime()</span>
                 </div>
                 <div class="post-menu dropdown">
                     <span class="dropdown-toggle">⋮</span>
