@@ -357,6 +357,13 @@ input {
   border-color: var(--primary-color);
 }
 
+.checkbox-group > label {
+  display: inline-block;
+}
+.checkbox-group > input[type="checkbox"] {
+  width: auto;
+}
+
 .submit-btn {
   background-color: var(--primary-color);
   color: var(--dark-text-color);
