@@ -21,7 +21,7 @@
                     @{
                         var localTime = TimeZoneInfo.ConvertTime(post.Timestamp, TimeZoneInfo.FindSystemTimeZoneById("Asia/Baku"));
                     }
-                    <span class="post-time">@localTime.ToLocalTime().ToString("dd MMM yyyy, hh:mm")</span>
+                    <span class="post-time">@localTime.ToLocalTime().ToString("dd MMM yyyy, HH:mm")</span>
                 </div>
                 <div class="post-menu dropdown">
                     <span class="dropdown-toggle">⋮</span>
