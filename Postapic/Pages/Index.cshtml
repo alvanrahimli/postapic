@@ -1,9 +1,13 @@
 ﻿@page "/"
 @using Microsoft.Extensions.Options
+@using System.Globalization
+@using System.Security.Claims
+@using Microsoft.AspNetCore.Mvc.TagHelpers
 @model IndexModel
 @inject IOptions<AppConfig> AppConfig
 @{
     ViewData["Title"] = "Home page";
+    var userId = int.Parse(User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value ?? "-1");
 }
 
 <div class="feed">
@@ -14,7 +18,10 @@
             <div class="post-header">
                 <div class="post-meta">
                     <span class="post-author">@post.User.Username</span>
-                    <span class="post-time">@post.Timestamp.ToLocalTime()</span>
+                    @{
+                        var localTime = TimeZoneInfo.ConvertTime(post.Timestamp, TimeZoneInfo.FindSystemTimeZoneById("Asia/Baku"));
+                    }
+                    <span class="post-time">@localTime.ToLocalTime().ToString("dd MMM yyyy, hh:mm")</span>
                 </div>
                 <div class="post-menu dropdown">
                     <span class="dropdown-toggle">⋮</span>
@@ -22,7 +29,7 @@
                         <li>
                             <button onclick="copyLink(this, '@linkToPost');">Copy link</button>
                         </li>
-                        @if (DateTime.UtcNow.Subtract(post.Timestamp).TotalMinutes < 1)
+                        @if (DateTime.UtcNow.Subtract(post.Timestamp).TotalMinutes < 1 && userId == post.UserId)
                         {
                             <li>
                                 <form asp-page-handler="DeletePost" data-confirm="Do you want to delete post '@post.Title'?">
@@ -60,21 +67,21 @@
         </div>
     }
     
-    <p class="pagination">
+    <div class="pagination">
         @if (Model.Pagination.ShowBackwardControls)
         {
-            <a href="?page=@Model.Pagination.FirstPage">&lt;&lt;</a>
-            <a href="?page=@Model.Pagination.PreviousPage">&lt;</a>
+            <a href="?page=@Model.Pagination.FirstPage">&lt;&lt;</a><span class="sep"></span>
+            <a href="?page=@Model.Pagination.PreviousPage">&lt;</a><span class="sep"></span>
         }
         
-        <a>@Model.Pagination.CurrentPage</a>
+        <a>@Model.Pagination.CurrentPage</a><span class="sep"></span>
         
         @if (Model.Pagination.ShowForwardControls)
         {
-            <a href="?page=@Model.Pagination.NextPage">&gt;</a>
+            <a href="?page=@Model.Pagination.NextPage">&gt;</a><span class="sep"></span>
             <a href="?page=@Model.Pagination.LastPage">&gt;&gt;</a>
         }
-    </p>
+    </div>
 </div>
 
 @{

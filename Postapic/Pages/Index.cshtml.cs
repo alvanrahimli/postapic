@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System.Security.Claims;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
@@ -60,6 +61,8 @@ public class IndexModel : PageModel
     {
         var post = await _context.Posts.FirstOrDefaultAsync(p => p.Id == DeletePostId);
         if (post == null) return RedirectToPage("/Index");
+        if (post.UserId != int.Parse(User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)!.Value))
+            return RedirectToPage("/Index");
         if (DateTime.UtcNow.Subtract(post.Timestamp).TotalMinutes > 1) return RedirectToPage("/Index");
 
         _context.Posts.Remove(post);

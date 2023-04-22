@@ -1,8 +1,12 @@
 @page "/p/{idOrPermalink}"
+@using Microsoft.Extensions.Options
 @model Postapic.Pages.SinglePost
+@inject IOptions<AppConfig> AppConfig
 
 @{
     Layout = "Shared/_Layout";
+    var linkToPost = System.IO.Path.Join(AppConfig.Value.BaseUrl, "p", Model.Post!.Permalink ?? Model.Post.Id.ToString());
+    var localTime = TimeZoneInfo.ConvertTime(Model.Post.Timestamp, TimeZoneInfo.FindSystemTimeZoneById("Asia/Baku"));
 }
 
 <div class="feed">
@@ -10,13 +14,14 @@
         <div class="post-header">
             <div class="post-meta">
                 <span class="post-author">@Model.Post.User.Username</span>
-                <span class="post-time">@Model.Post.Timestamp.ToLocalTime()</span>
+                <span class="post-time">@localTime.ToLocalTime().ToString("dd MMM yyyy, hh:mm")</span>
             </div>
             <div class="post-menu dropdown">
                 <span class="dropdown-toggle">⋮</span>
                 <ul class="dropdown-menu">
-                    <li><a href="#">Copy Link</a></li>
-                    <li><a href="/remove">Remove</a></li>
+                    <li>
+                        <button onclick="copyLink(this, '@linkToPost');">Copy link</button>
+                    </li>
                 </ul>
             </div>
         </div>
