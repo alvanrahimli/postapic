@@ -19,7 +19,6 @@ builder.Services.AddRazorPages(options =>
     
     if (builder.Configuration.GetValue<bool>("AppConfig:AuthenticateIndex"))
     {
-        Console.WriteLine(" => Yes, authenticate index!");
         options.Conventions.AuthorizePage("/Index");
         options.Conventions.AuthorizePage("/SinglePost");
     }
@@ -35,7 +34,7 @@ builder.Services.AddDbContext<DataContext>(options =>
 builder.Services.AddAuthorization();
 if (builder.Configuration["AppConfig:AuthenticateWith"] == "cookie")
 {
-    Console.WriteLine(" => Setting up Cookie");
+    Console.WriteLine(" => Setting up Cookie Authentication");
     builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
         .AddCookie(options =>
         {
@@ -47,7 +46,7 @@ if (builder.Configuration["AppConfig:AuthenticateWith"] == "cookie")
 else if (builder.Configuration["AppConfig:AuthenticateWith"] == "github.com/themisir/identity")
 {
     var identitySection = builder.Configuration.GetSection("github.com/themisir/identity");
-    Console.WriteLine($" => Setting up identity, {identitySection.Value}");
+    Console.WriteLine(" => Setting up github.com/themisir/identity authentication");
     
     builder.Services.AddAuthentication(options =>
         {
