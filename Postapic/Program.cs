@@ -17,8 +17,9 @@ builder.Services.AddRazorPages(options =>
     options.Conventions.AuthorizeFolder("/Settings");
     options.Conventions.AuthorizePage("/PostPage");
     
-    if (Environment.GetEnvironmentVariable("AUTHORIZE_INDEX")?.ToUpper() == "TRUE")
+    if (builder.Configuration.GetValue<bool>("AppConfig:AuthenticateIndex"))
     {
+        Console.WriteLine(" => Yes, authenticate index!");
         options.Conventions.AuthorizePage("/Index");
         options.Conventions.AuthorizePage("/SinglePost");
     }
@@ -34,6 +35,7 @@ builder.Services.AddDbContext<DataContext>(options =>
 builder.Services.AddAuthorization();
 if (builder.Configuration["AppConfig:AuthenticateWith"] == "cookie")
 {
+    Console.WriteLine(" => Setting up Cookie");
     builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
         .AddCookie(options =>
         {
@@ -45,6 +47,8 @@ if (builder.Configuration["AppConfig:AuthenticateWith"] == "cookie")
 else if (builder.Configuration["AppConfig:AuthenticateWith"] == "github.com/themisir/identity")
 {
     var identitySection = builder.Configuration.GetSection("github.com/themisir/identity");
+    Console.WriteLine($" => Setting up identity, {identitySection.Value}");
+    
     builder.Services.AddAuthentication(options =>
         {
             options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
