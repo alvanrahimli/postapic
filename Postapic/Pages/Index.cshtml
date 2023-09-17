@@ -1,13 +1,11 @@
 ﻿@page "/"
 @using Microsoft.Extensions.Options
-@using System.Globalization
-@using System.Security.Claims
-@using Microsoft.AspNetCore.Mvc.TagHelpers
+@using Postapic.Extensions
 @model IndexModel
 @inject IOptions<AppConfig> AppConfig
 @{
     ViewData["Title"] = "Home page";
-    var userId = int.Parse(User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value ?? "-1");
+    var userId = User.GetUserId(AppConfig.Value) ?? -1;
 }
 
 <div class="feed">

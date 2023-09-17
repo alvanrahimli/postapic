@@ -1,5 +1,7 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using Postapic.Models;
 using Postapic.Utils;
 using Upload.Core;
@@ -28,13 +30,40 @@ builder.Services.AddDbContext<DataContext>(options =>
 {
     options.UseSqlite(builder.Configuration.GetConnectionString("Default"));
 });
-builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-    .AddCookie(options =>
-    {
-        options.ExpireTimeSpan = TimeSpan.FromDays(28);
-        options.LoginPath = "/login";
-        options.LogoutPath = "/logout";
-    });
+
+builder.Services.AddAuthorization();
+if (builder.Configuration["AppConfig:AuthenticateWith"] == "cookie")
+{
+    builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+        .AddCookie(options =>
+        {
+            options.ExpireTimeSpan = TimeSpan.FromDays(28);
+            options.LoginPath = "/login";
+            options.LogoutPath = "/logout";
+        });
+}
+else if (builder.Configuration["AppConfig:AuthenticateWith"] == "github.com/themisir/identity")
+{
+    var identitySection = builder.Configuration.GetSection("github.com/themisir/identity");
+    builder.Services.AddAuthentication(options =>
+        {
+            options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+            options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+        })
+        .AddJwtBearer(options =>
+        {
+            options.Authority = identitySection["Jwt:Issuer"];
+            options.Audience = identitySection["Jwt:Audience"];
+            options.RequireHttpsMetadata = false;
+            options.TokenValidationParameters = new TokenValidationParameters
+            {
+                ValidateIssuer = true,
+                ValidateAudience = true,
+            };
+        });
+}
+
 builder.Services.AddUploadNet()
     .AddDiskProvider("primary", options =>
     {

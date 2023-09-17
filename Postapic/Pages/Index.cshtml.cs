@@ -1,8 +1,8 @@
-﻿using System.Security.Claims;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using Postapic.Extensions;
 using Postapic.Models;
 using Postapic.Utils;
 using Upload.Core;
@@ -64,10 +64,17 @@ public class IndexModel : PageModel
 
     public async Task<ActionResult> OnPostDeletePostAsync()
     {
+        var userId = User.GetUserId(_appConfig.Value);
+        if (userId is null) 
+            return Page();
+        
         var post = await _context.Posts.Include(p => p.Medias).FirstOrDefaultAsync(p => p.Id == DeletePostId);
-        if (post == null) return RedirectToPage("/Index");
-        if (post.UserId != int.Parse(User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)!.Value))
+        if (post == null) 
             return RedirectToPage("/Index");
+        
+        if (post.UserId != (int)userId)
+            return RedirectToPage("/Index");
+        
         if (DateTime.UtcNow.Subtract(post.Timestamp).TotalMinutes > 1) return RedirectToPage("/Index");
 
         _context.Posts.Remove(post);

@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using Postapic.Extensions;
 using Postapic.Models;
 using Postapic.Models.Enums;
 using Postapic.Utils;
@@ -32,6 +33,9 @@ public class PostPage : PageModel
 
     public async Task<ActionResult> OnPostCreateDraftAsync()
     {
+        var userId = User.GetUserId(_appConfig.Value);
+        if (userId is null) return Page();
+        
         if (Request.Form.Files.Count == 0) RedirectToPage("/Index");;
         
         List<Media> medias = new();
@@ -80,9 +84,10 @@ public class PostPage : PageModel
             Permalink = $"DRAFT-{Random.Shared.Next(100, 1000)}",
             Timestamp = DateTime.UtcNow,
             Title = "DRAFT",
-            UserId = int.Parse(User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)!.Value),
+            UserId = (int)userId,
             Draft = true
         };
+
         await _context.Posts.AddAsync(draftPost);
         if (await _context.SaveChangesAsync() == 0)
         {
