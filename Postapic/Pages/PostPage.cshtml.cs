@@ -1,4 +1,3 @@
-using System.Security.Claims;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
@@ -17,26 +16,33 @@ public class PostPage : PageModel
     private readonly DataContext _context;
     private readonly StorageManager _storageManager;
     private readonly IOptions<AppConfig> _appConfig;
+    private readonly ILogger<PostPage> _logger;
     private readonly Size _maxSize;
 
-    public PostPage(DataContext context, StorageManager storageManager, IOptions<AppConfig> appConfig)
+    public PostPage(DataContext context, StorageManager storageManager, IOptions<AppConfig> appConfig,
+        ILogger<PostPage> logger)
     {
         _context = context;
         _storageManager = storageManager;
         _appConfig = appConfig;
+        _logger = logger;
         _maxSize = new Size(_appConfig.Value.MediaConfig.MaxWidth, _appConfig.Value.MediaConfig.MaxHeight);
     }
     
-    [BindProperty] public SubmitPostModel SubmitPostDto { get; set; }
+    [BindProperty] 
+    public SubmitPostModel SubmitPostDto { get; set; }
     
     public Post DraftPost { get; set; }
 
     public async Task<ActionResult> OnPostCreateDraftAsync()
     {
-        var userId = User.GetUserId(_appConfig.Value);
-        if (userId is null) return Page();
+        var userId = User.GetUserId(_appConfig.Value, _logger);
+        if (userId is null)
+        {
+            return RedirectToPage("/Index");
+        }
         
-        if (Request.Form.Files.Count == 0) RedirectToPage("/Index");;
+        if (Request.Form.Files.Count == 0) return RedirectToPage("/Index");;
         
         List<Media> medias = new();
         foreach (var formFile in Request.Form.Files)

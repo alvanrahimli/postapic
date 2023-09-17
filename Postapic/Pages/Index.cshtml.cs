@@ -64,7 +64,7 @@ public class IndexModel : PageModel
 
     public async Task<ActionResult> OnPostDeletePostAsync()
     {
-        var userId = User.GetUserId(_appConfig.Value);
+        var userId = User.GetUserId(_appConfig.Value, _logger);
         if (userId is null) 
             return Page();
         

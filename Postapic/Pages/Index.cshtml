@@ -3,9 +3,10 @@
 @using Postapic.Extensions
 @model IndexModel
 @inject IOptions<AppConfig> AppConfig
+@inject ILogger<IndexModel> Logger
 @{
     ViewData["Title"] = "Home page";
-    var userId = User.GetUserId(AppConfig.Value) ?? -1;
+    var userId = User.GetUserId(AppConfig.Value, Logger) ?? -1;
 }
 
 <div class="feed">
