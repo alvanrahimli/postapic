@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.FileProviders;
 using Microsoft.IdentityModel.Tokens;
 using Postapic.Models;
 using Postapic.Utils;
@@ -97,10 +98,17 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new PhysicalFileProvider(builder.Configuration["UploadNet:Directory"]),
+    RequestPath = "/media"
+});
+
 app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapRazorPages();
-app.MapUploadedStaticFiles("/media", "primary");
+// app.MapStaticFiles("/media", builder.Configuration["UploadNet:Directory"]);
+// app.MapUploadedStaticFiles("/media", "primary");
 
 app.Run();

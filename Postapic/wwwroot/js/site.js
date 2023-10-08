@@ -89,7 +89,7 @@ document.querySelectorAll('[data-confirm]').forEach((el) => {
                     behavior: "smooth",
                     left: currentItem * spacing + currentItem * el.clientWidth,
                 });
-            }, 400);
+            }, 200);
 
             if (previousActiveItem !== currentItem) {
                 indicators.children.item(previousActiveItem).classList.remove("active");

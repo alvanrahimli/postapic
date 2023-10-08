@@ -104,6 +104,73 @@ public class PostPage : PageModel
         return Page();
     }
 
+    public async Task<ActionResult> OnPostAddMediaToDraftAsync()
+    {
+        var userId = User.GetUserId(_appConfig.Value, _logger);
+        if (userId is null)
+        {
+            return RedirectToPage("/Index");
+        }
+        
+        if (Request.Form.Files.Count == 0) 
+            return RedirectToPage("/Error");;
+
+        var post = await _context.Posts.FirstOrDefaultAsync(p => p.Id == SubmitPostDto.DraftId);
+        if (post is null)
+            return RedirectToPage("/Error");
+
+        List<Media> medias = new();
+        foreach (var formFile in Request.Form.Files)
+        {
+            await using var stream = formFile.OpenReadStream();
+            using var image = await Image.LoadAsync(stream);
+            {
+                image.Mutate(i => i.Resize(new ResizeOptions
+                {
+                    Mode = ResizeMode.Max,
+                    Size = _maxSize
+                }).AutoOrient());
+                
+                var output = new MemoryStream();
+                // Don't convert GIFs to webp format, just copy
+                if (image.Metadata.DecodedImageFormat == GifFormat.Instance)
+                {
+                    // TODO: Resize do not mutate GIFs because we use original stream. SaveAsGif distorts GIF itself
+                    stream.Position = 0;
+                    await stream.CopyToAsync(output);
+                }
+                else
+                {
+                    await image.SaveAsWebpAsync(output);
+                }
+                
+                output.Position = 0;
+                var now = DateTime.UtcNow;
+                var fileName = $"{now.Year}/{now.Month}/{now:yyyy-MM-ddThh-mm-ss}-{Random.Shared.Next(10, 100)}.webp";
+                var fileRef = await _storageManager.CreateFile("primary", fileName, output);
+
+                medias.Add(new Media
+                {
+                    Key = $"/media/{fileRef.Key}",
+                    Height = image.Height,
+                    Width = image.Width,
+                    Type = MediaType.Image,
+                    PostId = post.Id
+                });
+            }
+        }
+
+        await _context.Medias.AddRangeAsync(medias);
+        if (await _context.SaveChangesAsync() == 0)
+            return RedirectToPage("/Error");
+
+        DraftPost = await _context.Posts.AsNoTracking()
+            .Include(p => p.Medias)
+            .Include(p => p.User)
+            .FirstAsync(p => p.Id == post.Id);
+        return Page();
+    }
+
     public async Task<ActionResult> OnPostPublishAsync()
     {
         var draft = await _context.Posts.FirstOrDefaultAsync(p => p.Id == SubmitPostDto.DraftId && p.Draft);

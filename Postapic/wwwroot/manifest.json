@@ -1,0 +1,56 @@
+{
+  "background_color": "#212121",
+  "description": "Post A Pic! is an open source photo sharing platform for you and your homies.",
+  "dir": "ltr",
+  "display": "standalone",
+  "name": "Post A Pic!",
+  "orientation": "any",
+  "scope": "/",
+  "short_name": "PostApPic",
+  "start_url": "/",
+  "theme_color": "#212121",
+  "categories": [
+    "photo",
+    "social"
+  ],
+  "screenshots": [],
+  "icons": [
+    {
+      "src": "/favicon.ico",
+      "type": "image/x-icon"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Explore",
+      "url": "/",
+      "description": "Explore posted pictures"
+    }
+  ],
+  "id": "postapic.rahim.li",
+  "lang": "en",
+  "share_target": {
+    "method": "POST",
+    "action": "/post?handler=CreateDraft",
+    "enctype": "multipart/form-data",
+    "params": {
+      "files": [
+        {
+          "name": "files",
+          "accept": [
+            "image/jpeg",
+            "image/png",
+            "image/webp",
+            "image/gif"
+          ]
+        }
+      ]
+    }
+  },
+  "author": "Alvan Rahimli <webmaster@rahim.li>",
+  "config": {},
+  "createAt": "10-08-2023T17:30:00+04:00",
+  "homepage": "/",
+  "identifier": "postapic.rahim.li",
+  "schemaVersion": 0
+}
