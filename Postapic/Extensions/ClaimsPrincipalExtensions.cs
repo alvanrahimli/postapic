@@ -7,6 +7,10 @@ public static class ClaimsPrincipalExtensions
 {
     public static int? GetUserId(this ClaimsPrincipal principal, AppConfig appConfig, ILogger logger)
     {
+        var claimName = string.IsNullOrEmpty(appConfig.IdClaimName) 
+            ? ClaimTypes.NameIdentifier 
+            : appConfig.IdClaimName;
+
         // TODO: This returns false, even if we have correct claim for identity
         // if (principal.Identity?.IsAuthenticated ?? false)
         // {
@@ -14,15 +18,17 @@ public static class ClaimsPrincipalExtensions
         //     return null;
         // }
         
-        var idStr = principal.Claims.FirstOrDefault(c => c.Type == appConfig.IdClaimName)?.Value;
+        var idStr = principal.Claims.FirstOrDefault(c => c.Type == claimName)?.Value;
         if (idStr is null)
         {
-            logger.LogWarning("Could not find claim: {ClaimName}", appConfig.IdClaimName);
+            logger.LogWarning("Could not find claim: {ClaimName}", claimName);
             return null;
         }
 
-        var ok = int.TryParse(idStr, out var id);
-        if (!ok) logger.LogWarning("Could not parse id: {Id}", idStr);
-        return ok ? id : null;
+        if (int.TryParse(idStr, out var id))
+            return id;
+        
+        logger.LogWarning("Could not parse id: {Id}", idStr);
+        return null;
     }
 }

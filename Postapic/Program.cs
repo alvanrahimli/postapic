@@ -48,7 +48,7 @@ else if (builder.Configuration["AppConfig:AuthenticateWith"] == "github.com/them
 {
     var identitySection = builder.Configuration.GetSection("github.com/themisir/identity");
     Console.WriteLine(" => Setting up github.com/themisir/identity authentication");
-    
+
     builder.Services.AddAuthentication(options =>
         {
             options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;

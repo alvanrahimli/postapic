@@ -12,7 +12,9 @@
 <div class="feed">
     @foreach (var post in Model.Posts)
     {
-        var linkToPost = System.IO.Path.Join(AppConfig.Value.BaseUrl, "p", post.Permalink ?? post.Id.ToString());
+        <partial name="Shared/PostComponent" model="post" />
+        
+        var linkToPost = new Uri(new Uri(AppConfig.Value.BaseUrl), $"p/{post.Permalink ?? post.Id.ToString()}");
         <div class="post">
             <div class="post-header">
                 <div class="post-meta">
@@ -31,7 +33,7 @@
                         @if (DateTime.UtcNow.Subtract(post.Timestamp).TotalMinutes < 1 && userId == post.UserId)
                         {
                             <li>
-                                <form asp-page-handler="DeletePost" data-confirm="Do you want to delete post '@post.Title'?">
+                                <form asp-page="/Index" asp-page-handler="DeletePost" data-confirm="Do you want to delete post '@post.Title'?">
                                     <input type="hidden" asp-for="DeletePostId" value="@post.Id">
                                     <button type="submit">Remove</button>
                                 </form>

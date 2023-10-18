@@ -1,0 +1,64 @@
+﻿@using Microsoft.Extensions.Options
+@model Post
+@inject IOptions<AppConfig> AppConfig
+@inject DataContext Db
+
+@{
+    var linkToPost = new Uri(new Uri(AppConfig.Value.BaseUrl), $"p/{Model.Permalink ?? Model.Id.ToString()}");
+    var localTime = TimeZoneInfo.ConvertTime(Model.Timestamp, TimeZoneInfo.FindSystemTimeZoneById("Asia/Baku"));
+}
+
+<div class="post">
+    <div class="post-header">
+        <div class="post-meta">
+            <span class="post-author">@Model.User.Username</span>
+            <span class="post-time">@localTime.ToLocalTime().ToString("dd MMM yyyy, HH:mm")</span>
+        </div>
+        <div class="post-menu dropdown">
+            <span class="dropdown-toggle">⋮</span>
+            <ul class="dropdown-menu">
+                <li>
+                    <button onclick="copyLink(this, '@linkToPost');">Copy link</button>
+                </li>
+                @if (DateTime.UtcNow.Subtract(Model.Timestamp).TotalMinutes < 1 && userId == Model.UserId)
+                {
+                    <li>
+                        <form asp-page="/Index" asp-page-handler="DeletePost" data-confirm="Do you want to delete post '@Model.Title'?">
+                            <input type="hidden" asp-for="DeletePost" value="@Model.Id">
+                            <button type="submit">Remove</button>
+                        </form>
+                    </li>
+                }
+            </ul>
+        </div>
+    </div>
+    <h2>@Model.Title</h2>
+    @if (Model.Medias.Count > 1)
+    {
+        <div class="media carousel">
+            @foreach (var media in Model.Medias)
+            {
+                <img src="@media.Key" alt="Media for post with title @Model.Title">
+            }
+        </div>
+        <div class="carousel-indicators">
+            <span class="active"></span>
+            @for (var i = 0; i < Model.Medias.Count - 1; i++)
+            {
+                <span></span>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="media">
+            <img src="@(Model.Medias.FirstOrDefault()?.Key ?? "https://http.cat/200")" alt="Media for post with title @Model.Title">
+        </div>
+    }
+</div>
+
+@code {
+
+    private int DeletePostId;
+
+}
